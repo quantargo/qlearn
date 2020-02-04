@@ -63,7 +63,8 @@ install_knitr_hooks <- function() {
     if (exercise_chunk) {
 
       # one time tutor initialization
-      initialize_tutorial()
+
+      #initialize_tutorial()
 
       options$echo <- TRUE
       options$include <- TRUE
@@ -155,10 +156,10 @@ install_knitr_hooks <- function() {
         verify_tutorial_chunk_label()
 
         # inject ace and clipboardjs dependencies
-        knitr::knit_meta_add(list(
-          list(ace_html_dependency()),
-          list(clipboardjs_html_dependency())
-        ))
+        #knitr::knit_meta_add(list(
+        #  list(ace_html_dependency()),
+        #  list(clipboardjs_html_dependency())
+        #))
 
         # write server code
         exercise_server_chunk(options$label)

@@ -1,3 +1,4 @@
+#' @import rmarkdown
 #' @export
 qlearn <- function(toc = FALSE, toc_depth = 3, toc_float = FALSE, number_sections = FALSE,
                              section_divs = TRUE, fig_width = 7, fig_height = 5, fig_retina = 2,

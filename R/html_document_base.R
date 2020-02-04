@@ -1,3 +1,4 @@
+#' @import jsonlite
 html_document_base <-
   function (smart = TRUE, theme = NULL, self_contained = TRUE,
             lib_dir = NULL, mathjax = "default", pandoc_args = NULL,
