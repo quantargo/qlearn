@@ -1,4 +1,5 @@
 #' @import jsonlite
+#' @import xml2
 html_document_base <-
   function (smart = TRUE, theme = NULL, self_contained = TRUE,
             lib_dir = NULL, mathjax = "default", pandoc_args = NULL,
@@ -97,31 +98,49 @@ html_document_base <-
         output_str <- rmarkdown:::process_images(output_str, image_relative)
       }
 
-      section_header_lines <- grep('class="section level2"', output_str, fixed = TRUE)
-      section_names <- sapply(strsplit(output_str[section_header_lines], "\""), function(x) x[2])
-      int_split <- findInterval(seq_along(output_str), section_header_lines)
-      section_chunks <- lapply(split(output_str, int_split)[-1], function(x) paste(x, collapse = "\n"))
-
-      contentId <- "course-platform-new#Introduction#00-01"
+      writeLines(output_str, "output_str.html")
+      html_doc <- xml2::read_html(paste(output_str, collapse = "\n"))
+      sections <- xml2::xml_find_all(html_doc, "//div[@class='section level2']")
+      contentId <- metadata$tutorial$id
 
       json_out <- list(
         list(
           moduleId = unbox("course-platform-new"),
           contentId = unbox(contentId),
           contentType = unbox("index"),
-          contents = lapply(section_names, function(x) list(type = unbox("contentId"), content = unbox(sprintf("%s#%s", contentId, x))))
+          contents = lapply(sapply(sections, xml2::xml_attr, "id"),
+                            function(x) list(type = unbox("contentId"),
+                                             content = unbox(sprintf("%s#%s", contentId, x))))
         )
       )
 
-      for (i in seq_along(section_chunks)) {
-        json_out[[i+1]] <- list(
-          moduleId = unbox("course-platform-new"),
-          contentId = unbox(sprintf("course-platform-new#Introduction#00-01#%s", section_names[i])),
-          contentType = unbox("html"),
-          contents = list(list(
-            type = unbox("html"),
-            content = unbox(section_chunks[[i]])
-          )))
+      i <- 2
+      # Extract exercises from content and replace with placeholders
+      for (s in sections) {
+        nodes_exercise <- xml_find_all(s, ".//div[starts-with(@class, 'placeholder-')]")
+        if (length(nodes_exercise) > 0) {
+          for (e in nodes_exercise) {
+            browser()
+            objExercise <- e %>%
+              xml_text() %>%
+              jsonlite::fromJSON()
+          }
+        }
+
+        # get exercise chunks
+
+        # get quiz chunks
+
+
+        # json_out[[i+1]] <- list(
+        #   moduleId = unbox("course-platform-new"),
+        #   contentId = unbox(sprintf("%s#%s", contentId, section_names[i])),
+        #   contentType = unbox("html"),
+        #   contents = list(list(
+        #     type = unbox("html"),
+        #     content = unbox(section_chunks[[i]])
+        #   )))
+
       }
 
       output_file_json <- sub("\\.html$", "\\.json", output_file)
@@ -132,7 +151,7 @@ html_document_base <-
       #output_file
     }
     output_format(knitr = NULL, pandoc = pandoc_options(to = "html",
-                                                        from = NULL, args = args), keep_md = TRUE, clean_supporting = FALSE,
+                                                        from = NULL, args = args), keep_md = FALSE, clean_supporting = FALSE,
                   pre_knit = pre_knit, post_knit = post_knit, pre_processor = pre_processor,
                   intermediates_generator = intermediates_generator, post_processor = post_processor)
   }

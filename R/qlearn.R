@@ -8,7 +8,7 @@ qlearn <- function(toc = FALSE, toc_depth = 3, toc_float = FALSE, number_section
                              self_contained = FALSE, theme = NULL, highlight = NULL,
                              mathjax = NULL, template = rmarkdown:::rmarkdown_system_file("rmd/fragment/default.html"),
                              extra_dependencies = NULL,
-                             css = NULL, includes = NULL, keep_md = TRUE, lib_dir = NULL,
+                             css = NULL, includes = NULL, keep_md = FALSE, lib_dir = NULL,
                              md_extensions = NULL, pandoc_args = "--mathjax",
                              ...)  {
 

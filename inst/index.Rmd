@@ -1,7 +1,7 @@
 ---
 title: "data.frames and Tibbles"
 tutorial:
-  id: "machine-learning-with-r/00-01"
+  id: "course-platform-new#Introduction#00-01"
   version: 0.1
 output: 
   learnr::tutorial:
@@ -15,11 +15,8 @@ runtime: shiny_prerendered
 library(learnr)
 library(tidyverse)
 
-checker <- function(label, user_code, check_code, envir_result, evaluate_result, ...) {
-  list(message = check_code, correct = TRUE, location = "append")
-}
-tutorial_options(exercise.timelimit = 60, exercise.checker = checker)
-knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+tutorial_options(exercise.timelimit = 60, exercise.checker = gradethis::grade_learnr)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ## Welcome
@@ -64,12 +61,11 @@ In the chunk below, load babynames (the package) and then open the help page for
 
 ```
 
-```{r exercise-03-03-01-solution}
-library(babynames)
-?babynames
+```{r exercise-03-03-01-hint, eval = FALSE}
+library(baby...)
 ```
 
-```{r bnames, echo = FALSE, message = FALSE}
+```{r exercise-03-03-01-solution}
 library(babynames)
 ```
 
@@ -202,7 +198,13 @@ When you load tidyverse it instructs R to load _the most commonly used_ tidyvers
 
 You can load the less commonly used tidyverse packages in the normal way, by running `library()` for each of them.
 
+### Exercise
+
 Let's give this a try. We will use the ggplot2 and dplyr packages later in this tutorial. Let's use the tidyverse package to load them in the chunk below:
+
+```{r bnames, echo = FALSE, message = FALSE}
+library(babynames)
+```
 
 ```{r exercise-03-03-03, exercise = TRUE, exercise.setup = "bnames"}
 

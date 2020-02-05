@@ -11,5 +11,6 @@ Encoding: UTF-8
 LazyData: true
 Imports:
   rmarkdown,
-  jsonlite
+  jsonlite,
+  xml2
 RoxygenNote: 6.1.1
