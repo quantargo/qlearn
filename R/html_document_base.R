@@ -114,9 +114,10 @@ html_document_base <-
       )
 
       i <- 2
-
+      qid <- 1
       # Extract exercises from content and replace with placeholders
       for (s in sections) {
+        sectionId <- s %>% xml_attr("id")
         nodes_exercise <- xml_find_all(s, ".//div[starts-with(@class, 'placeholder-')]")
         if (length(nodes_exercise) > 0) {
           for (e in nodes_exercise) {
@@ -124,7 +125,7 @@ html_document_base <-
               xml_text() %>%
               jsonlite::fromJSON()
 
-            objExercise$contentId <- paste(contentId, objExercise$contentId, sep = "#")
+            objExercise$contentId <- paste(contentId, sectionId, objExercise$contentId, sep = "#")
             attributes_unbox <- c("contentId", "contentType", "exerciseType", "solution")
             for (a in attributes_unbox) {
               objExercise[[a]] <- unbox(objExercise[[a]])
@@ -140,6 +141,36 @@ html_document_base <-
         }
 
         # get quiz chunks
+        #browser()
+        nodes_quizzes <- xml_find_all(s, ".//script[starts-with(@data-for, 'htmlwidget-')]")
+        if (length(nodes_quizzes) > 0) {
+          for (q in nodes_quizzes) {
+            objQuiz <- q %>%
+              xml_text() %>%
+              jsonlite::fromJSON()
+
+            objQuizOut <- list(
+              contentId = unbox(paste(contentId, sectionId, paste("quiz", qid, sep = "-"), sep = "#")),
+              contentType = unbox("exercise"),
+              contents = list(list(
+                type = unbox("html"),
+                content = unbox(objQuiz$x$question)
+              )),
+              exerciseType = unbox(if (length(which(objQuiz$x$answers$correct)) == 1) "quiz-single-choice" else "quiz-multiple-choice"),
+              answers = objQuiz$x$answers
+            )
+
+            json_out[[i]] <- objQuizOut
+
+            placeholder_node <- read_xml(sprintf("<div class='section level3' type='exercise' contentId='%s'></div>",
+                                                 objQuizOut$contentId))
+            xml_replace(e, placeholder_node)
+            i <- i + 1
+            qid <- qid + 1
+          }
+        }
+
+        # create final chunks
 
 
 
