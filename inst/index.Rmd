@@ -55,6 +55,8 @@ To load the `babynames` package, you would run the command `library(babynames)`.
 
 This might sound like an inconvenience, but choosing which packages to load keeps your R experience simple and orderly.
 
+### Exercise
+
 In the chunk below, load babynames (the package) and then open the help page for `babynames` (the data set). Be sure to read the help page before going on.
 
 ```{r exercise-03-03-01, exercise = TRUE, exercise.setup = "bnames"}
@@ -118,6 +120,8 @@ knitr::include_graphics("www/images/tibble_display.png")
 ### as_tibble()
 
 You can transform a data frame to a tibble with the `as_tibble()` function in the tibble package, e.g. `as_tibble(cars)`. However, `babynames` is already a tibble. To display it nicely, you just need to load the tibble package. 
+
+### Exercise
 
 To see what I mean, use `library()` to load the tibble package in the chunk below and then call `babynames`.
 

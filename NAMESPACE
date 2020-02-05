@@ -2,7 +2,6 @@
 
 export(initialize_tutorial)
 export(qlearn)
-export(question)
 import(jsonlite)
 import(rmarkdown)
 import(xml2)

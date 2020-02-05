@@ -98,7 +98,6 @@ html_document_base <-
         output_str <- rmarkdown:::process_images(output_str, image_relative)
       }
 
-      writeLines(output_str, "output_str.html")
       html_doc <- xml2::read_html(paste(output_str, collapse = "\n"))
       sections <- xml2::xml_find_all(html_doc, "//div[@class='section level2']")
       contentId <- metadata$tutorial$id
@@ -115,21 +114,34 @@ html_document_base <-
       )
 
       i <- 2
+
       # Extract exercises from content and replace with placeholders
       for (s in sections) {
         nodes_exercise <- xml_find_all(s, ".//div[starts-with(@class, 'placeholder-')]")
         if (length(nodes_exercise) > 0) {
           for (e in nodes_exercise) {
-            browser()
             objExercise <- e %>%
               xml_text() %>%
               jsonlite::fromJSON()
+
+            objExercise$contentId <- paste(contentId, objExercise$contentId, sep = "#")
+            attributes_unbox <- c("contentId", "contentType", "exerciseType", "solution")
+            for (a in attributes_unbox) {
+              objExercise[[a]] <- unbox(objExercise[[a]])
+            }
+            #browser()
+            json_out[[i]] <- objExercise
+            placeholder_node <- read_xml(sprintf("<div class='section level3' type='exercise' contentId='%s'></div>",
+                                                 objExercise$contentId))
+            xml_replace(e, placeholder_node)
+            i <- i + 1
+            # TODO: Add exercise text
           }
         }
 
-        # get exercise chunks
-
         # get quiz chunks
+
+
 
 
         # json_out[[i+1]] <- list(
@@ -143,8 +155,10 @@ html_document_base <-
 
       }
 
+      xml2::write_html(html_doc, file = "output_str.html")
       output_file_json <- sub("\\.html$", "\\.json", output_file)
       jsonlite::write_json(json_out, output_file_json, auto_unbox = FALSE)
+
       output_file_json
 
       #rmarkdown:::write_utf8(output_str, output_file)

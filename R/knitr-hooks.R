@@ -50,7 +50,7 @@ install_knitr_hooks <- function() {
 
     # # helper to produce an exercise wrapper div w/ the specified class
     exercise_placeholder_div <- function(suffix = NULL, extra_html = NULL) {
-        if (!is.null(suffix))
+      if (!is.null(suffix))
           suffix <- paste0("-", suffix)
         class <- paste0("exercise", suffix)
         lines <- ifelse(is.numeric(options$exercise.lines),
@@ -97,9 +97,9 @@ install_knitr_hooks <- function() {
         attributes(exObj$solution) <- NULL
         exObj$solution <- unbox(exObj$solution)
 
-        extra_html <- c('<script type="application/json" data-opts-chunk="1">',
+        extra_html <- paste0(c('<script type="application/json" data-opts-chunk="1">',
                         jsonlite::toJSON(exObj),
-                        '</script>')
+                        '</script>'), collapse = "")
         suffix <- sub("exercise-", "", options$label)
         exercise_placeholder_div(suffix, extra_html = extra_html)
 
