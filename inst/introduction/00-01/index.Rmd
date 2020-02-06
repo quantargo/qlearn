@@ -1,7 +1,7 @@
 ---
 title: "data.frames and Tibbles"
 tutorial:
-  id: "course-platform-new#Introduction#00-01"
+  id: "course-platform-new#introduction#00-01"
   version: 0.1
 output: 
   learnr::tutorial:
@@ -45,6 +45,11 @@ Click the Next Topic button to begin.
 
 Before we begin, let's learn a little about our data. The `babynames` dataset comes in the **babynames** package. The package is pre-installed for you, just as ggplot2 was pre-installed in the last tutorial. But unlike in the last tutorial, I have not pre-_loaded_ babynames, or any other package.
 
+```{r, echo =FALSE}
+plot(1:10)
+```
+
+
 What does this mean? In R, whenever you want to use a package that is not part of base R, you need to load the package with the command `library`. Until you load a package, R will not be able to find the datasets and functions contained in the package. For example, if we asked R to display the `babynames` dataset, which comes in the babynames package, right now, we'd get the message below. R cannot find the dataset because we haven't loaded the babynames package.
 
 ```{r exercise-03-03-00, error = TRUE}
@@ -55,7 +60,7 @@ To load the `babynames` package, you would run the command `library(babynames)`.
 
 This might sound like an inconvenience, but choosing which packages to load keeps your R experience simple and orderly.
 
-### Exercise
+## Exercise
 
 In the chunk below, load babynames (the package) and then open the help page for `babynames` (the data set). Be sure to read the help page before going on.
 
@@ -71,7 +76,7 @@ library(baby...)
 library(babynames)
 ```
 
-### The data
+## The data
 
 Now that you know a little about the dataset, let's examine its contents. If you were to run `babynames` at your R console, you would get output that looks like this:
 
@@ -114,14 +119,14 @@ Whenever you do not have the tibble packages loaded, R will display the tibble a
 You can think of the difference between the data frame display and the tibble display like this:
 
 ```{r out.width = "75%"}
-knitr::include_graphics("www/images/tibble_display.png")
+knitr::include_graphics("images/tibble_display.png")
 ```
 
 ### as_tibble()
 
 You can transform a data frame to a tibble with the `as_tibble()` function in the tibble package, e.g. `as_tibble(cars)`. However, `babynames` is already a tibble. To display it nicely, you just need to load the tibble package. 
 
-### Exercise
+## Exercise
 
 To see what I mean, use `library()` to load the tibble package in the chunk below and then call `babynames`.
 
@@ -140,7 +145,7 @@ library(tibble)
 
 You do not need to worry much about tibbles in these tutorials; in future tutorials, I'll automatically convert each data frame into an interactive table. However, you should consider making tibbles an important part of your work in R.
 
-### View()
+## View()
 
 What if you'd like to inspect the remaining portions of a tibble? To see the entire tibble, use the `View()` command. R will launch a window that shows a scrollable display of the entire data set. For example, the code below will launch a data viewer in the RStudio IDE.
 
@@ -202,7 +207,7 @@ When you load tidyverse it instructs R to load _the most commonly used_ tidyvers
 
 You can load the less commonly used tidyverse packages in the normal way, by running `library()` for each of them.
 
-### Exercise
+## Exercise
 
 Let's give this a try. We will use the ggplot2 and dplyr packages later in this tutorial. Let's use the tidyverse package to load them in the chunk below:
 
@@ -218,7 +223,7 @@ library(babynames)
 library(tidyverse)
 ```
 
-### Quiz
+## Quiz
 
 ```{r exercise-03-03-04, echo = FALSE}
 question('Which package is not loaded by `tidyverse`?',
@@ -230,7 +235,7 @@ question('Which package is not loaded by `tidyverse`?',
 )
 ```
 
-### Recap
+## Recap
 
 Tibbles and the tidyverse package are two tools that make life with R easier. Ironically, you may not come to appreciate their value right away: these tutorials pre-load packages for you, and they wrap data frames into an interactive table for display (at least the tutorials in the primers that follow will). However, you will want to utilize tibbles and the tidyverse package when you move out of the tutorials and begin doing your own work with R inside of the RStudio IDE.
 

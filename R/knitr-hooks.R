@@ -122,18 +122,6 @@ remove_knitr_hooks <- function() {
   knitr::knit_hooks$set(tutorial = NULL)
 }
 
-# exercise_server_chunk <- function(label) {
-#
-#   rmarkdown::shiny_prerendered_chunk('server',
-#     div(label, class = "exercise placeholder"))
-# #   # reactive for exercise execution
-# #   rmarkdown::shiny_prerendered_chunk('server', sprintf(
-# # '`tutorial-exercise-%s-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-%s-code-editor`)), session)
-# # output$`tutorial-exercise-%s-output` <- renderUI({
-# #   `tutorial-exercise-%s-result`()
-# # })', label, label, label, label))
-# }
-
 
 verify_tutorial_chunk_label <- function() {
   label <- knitr::opts_current$get('label')

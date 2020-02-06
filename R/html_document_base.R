@@ -1,11 +1,11 @@
-#' @import jsonlite
 #' @import xml2
+#' @import jsonlite
 html_document_base <-
-  function (smart = TRUE, theme = NULL, self_contained = TRUE,
+  function (smart = TRUE, theme = NULL, self_contained = FALSE,
             lib_dir = NULL, mathjax = "default", pandoc_args = NULL,
             template = "default", dependency_resolver = NULL, copy_resources = FALSE,
             extra_dependencies = NULL, bootstrap_compatible = FALSE,
-            ...) {
+             ...) {
     if (is.null(dependency_resolver))
       dependency_resolver <- rmarkdown:::html_dependency_resolver
     args <- c()
@@ -86,19 +86,32 @@ html_document_base <-
       }
       else if (!self_contained) {
         image_relative <- function(img_src, src) {
+          image_prefix <- sprintf("/assets/courses/%s",
+                                  gsub("#", "/", metadata$tutorial$id, fixed = TRUE))
+
           in_file <- utils::URLdecode(src)
           if (grepl("^[.][.]", in_file))
             return(img_src)
           if (length(in_file) && file.exists(in_file)) {
-            img_src <- sub(src, utils::URLencode(normalized_relative_to(output_dir,
-                                                                        in_file)), img_src, fixed = TRUE)
+            image_path_full <- file.path(image_prefix, src)
+            img_src <- sub(src, image_path_full, img_src)
           }
           img_src
         }
+
         output_str <- rmarkdown:::process_images(output_str, image_relative)
       }
 
       html_doc <- xml2::read_html(paste(output_str, collapse = "\n"))
+
+      # Remove unncecessary nodes
+      nodes_shiny_prerendered <- xml2::xml_find_all(html_doc, "//script[@type='application/shiny-prerendered']")
+      xml_remove(nodes_shiny_prerendered)
+      nodes_html_widgets <- xml2::xml_find_all(html_doc, "//div[starts-with(@id, 'htmlwidget-')]")
+      xml_remove(nodes_html_widgets)
+      nodes_comment <- xml2::xml_find_all(html_doc, "//comment()")
+      xml_remove(nodes_comment)
+
       sections <- xml2::xml_find_all(html_doc, "//div[@class='section level2']")
       contentId <- metadata$tutorial$id
 
@@ -113,12 +126,17 @@ html_document_base <-
         )
       )
 
-      i <- 2
       qid <- 1
       # Extract exercises from content and replace with placeholders
+
+
       for (s in sections) {
         sectionId <- s %>% xml_attr("id")
         nodes_exercise <- xml_find_all(s, ".//div[starts-with(@class, 'placeholder-')]")
+        nodes_quizzes <- xml_find_all(s, ".//script[starts-with(@data-for, 'htmlwidget-')]")
+
+        sectionContents <- list()
+
         if (length(nodes_exercise) > 0) {
           for (e in nodes_exercise) {
             objExercise <- e %>%
@@ -130,19 +148,19 @@ html_document_base <-
             for (a in attributes_unbox) {
               objExercise[[a]] <- unbox(objExercise[[a]])
             }
-            #browser()
-            json_out[[i]] <- objExercise
-            placeholder_node <- read_xml(sprintf("<div class='section level3' type='exercise' contentId='%s'></div>",
-                                                 objExercise$contentId))
-            xml_replace(e, placeholder_node)
-            i <- i + 1
-            # TODO: Add exercise text
+
+            objExercise$contents <- lapply(xml_find_all(s, ".//p"), function(x) list(
+              type = unbox("html"),
+              content = unbox(as.character(x))
+            ))
+            json_out[[length(json_out) + 1]]  <- objExercise
+            sectionContents[[length(sectionContents) + 1]] <- list(
+              type = unbox("contentId"),
+              content = unbox(objExercise$contentId)
+            )
           }
         }
 
-        # get quiz chunks
-        #browser()
-        nodes_quizzes <- xml_find_all(s, ".//script[starts-with(@data-for, 'htmlwidget-')]")
         if (length(nodes_quizzes) > 0) {
           for (q in nodes_quizzes) {
             objQuiz <- q %>%
@@ -159,32 +177,39 @@ html_document_base <-
               exerciseType = unbox(if (length(which(objQuiz$x$answers$correct)) == 1) "quiz-single-choice" else "quiz-multiple-choice"),
               answers = objQuiz$x$answers
             )
-
-            json_out[[i]] <- objQuizOut
-
-            placeholder_node <- read_xml(sprintf("<div class='section level3' type='exercise' contentId='%s'></div>",
-                                                 objQuizOut$contentId))
-            xml_replace(e, placeholder_node)
-            i <- i + 1
+            json_out[[length(json_out) + 1]]  <- objQuizOut
+            sectionContents[[length(sectionContents) + 1]] <- list(
+              type = unbox("contentId"),
+              content = unbox(objQuizOut$contentId)
+            )
             qid <- qid + 1
           }
         }
 
-        # create final chunks
-
-
-
-
-        # json_out[[i+1]] <- list(
-        #   moduleId = unbox("course-platform-new"),
-        #   contentId = unbox(sprintf("%s#%s", contentId, section_names[i])),
-        #   contentType = unbox("html"),
-        #   contents = list(list(
-        #     type = unbox("html"),
-        #     content = unbox(section_chunks[[i]])
-        #   )))
-
+        # If no exercise or quiz in section -> Add entire content chunk
+        if (length(nodes_exercise) < 1 && length(nodes_quizzes) < 1) {
+          contentIdSection <- paste(contentId, sectionId, sep = "#")
+          objSectionOut <- list(
+            contentId = unbox(contentIdSection),
+            contentType = unbox("html"),
+            contents = list(list(
+              type = unbox("html"),
+              content = unbox(as.character(s))
+            ))
+          )
+          json_out[[length(json_out) + 1]]  <- objSectionOut
+          sectionContents[[length(sectionContents) + 1]] <- list(
+            type = unbox("contentId"),
+            content = unbox(contentIdSection)
+          )
+        }
       }
+
+      # json_out[[length(json_out) + 1]]  <- list(
+      #   contentId = "course-platform-new#Introduction#00-01",
+      #   contentType = "index",
+      #   contents = sectionContents
+      # )
 
       xml2::write_html(html_doc, file = "output_str.html")
       output_file_json <- sub("\\.html$", "\\.json", output_file)
