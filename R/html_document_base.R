@@ -118,10 +118,11 @@ html_document_base <-
 
       sections <- xml2::xml_find_all(html_doc, "//div[@class='section level2']")
       contentId <- metadata$tutorial$id
+      moduleId <- strsplit(contentId, "#")[[1]][1]
 
       json_out <- list(
         list(
-          moduleId = unbox("course-platform-new"),
+          moduleId = unbox(moduleId),
           contentId = unbox(contentId),
           contentType = unbox("index"),
           contents = lapply(sapply(sections, xml2::xml_attr, "id"),
@@ -148,7 +149,8 @@ html_document_base <-
               jsonlite::fromJSON()
 
             objExercise$contentId <- paste(contentId, sectionId, objExercise$contentId, sep = "#")
-            attributes_unbox <- c("contentId", "contentType", "exerciseType", "solution")
+            objExercise$qbitName = sprintf("qbit-module-%s-dev", moduleId)
+            attributes_unbox <- c("contentId", "qbitName", "contentType", "exerciseType", "solution")
             for (a in attributes_unbox) {
               objExercise[[a]] <- unbox(objExercise[[a]])
             }
