@@ -73,7 +73,6 @@ install_knitr_hooks <- function() {
     if (before) {
 
       if (is_exercise_chunk(options) ) {
-
         # TODO: Build exercise object
         label_query <- "knitr::knit_code$get()"
         all_exercise_chunks <- eval(parse(text = label_query))
@@ -118,8 +117,8 @@ install_knitr_hooks <- function() {
 }
 
 remove_knitr_hooks <- function() {
-  knitr::opts_hooks$set(tutorial = NULL)
-  knitr::knit_hooks$set(tutorial = NULL)
+  knitr::opts_hooks$set(qlearn = NULL)
+  knitr::knit_hooks$set(qlearn = NULL)
 }
 
 

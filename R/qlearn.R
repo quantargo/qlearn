@@ -1,4 +1,5 @@
 #' @import rmarkdown
+# @importFrom phuse merge_lists
 #' @export
 qlearn <- function(toc = FALSE, toc_depth = 3, toc_float = FALSE, number_sections = FALSE,
                              section_divs = TRUE, fig_width = 7, fig_height = 5, fig_retina = 2,
@@ -48,7 +49,7 @@ qlearn <- function(toc = FALSE, toc_depth = 3, toc_float = FALSE, number_section
                                           "1"))
   }
   if (identical(template, "default"))
-    args <- c(args, "--template", pandoc_path_arg(rmarkdown_system_file("rmd/h/default.html")))
+    args <- c(args, "--template", pandoc_path_arg(rmarkdown:::rmarkdown_system_file("rmd/h/default.html")))
   else if (!is.null(template))
     args <- c(args, "--template", pandoc_path_arg(template))
   code_folding <- match.arg(code_folding)
@@ -56,7 +57,7 @@ qlearn <- function(toc = FALSE, toc_depth = 3, toc_float = FALSE, number_section
     code_menu <- !identical(code_folding, "none") || code_download
     source_embed <- code_download
     extra_dependencies <- append(extra_dependencies, list(html_dependency_jquery(),
-                                                          html_dependency_navigation(code_menu = code_menu,
+                                                          rmarkdown:::html_dependency_navigation(code_menu = code_menu,
                                                                                      source_embed = source_embed)))
   }
   args <- c(args, rmarkdown:::pandoc_html_highlight_args(template, highlight))

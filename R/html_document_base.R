@@ -1,5 +1,6 @@
 #' @import xml2
 #' @import jsonlite
+#' @importFrom magrittr "%>%"
 html_document_base <-
   function (smart = TRUE, theme = NULL, self_contained = FALSE,
             lib_dir = NULL, mathjax = "default", pandoc_args = NULL,
@@ -32,7 +33,7 @@ html_document_base <-
         lib_dir <<- files_dir
       output_dir <<- output_dir
       if (!is.null(theme)) {
-        theme <- match.arg(theme, themes())
+        theme <- match.arg(theme, rmarkdown:::themes())
         if (identical(theme, "default"))
           theme <- "bootstrap"
         args <- c(args, "--variable", paste0("theme:", theme))
@@ -42,7 +43,7 @@ html_document_base <-
         format_deps <- append(format_deps, list(html_dependency_jquery(),
                                                 html_dependency_bootstrap(theme)))
       }
-      else if (isTRUE(bootstrap_compatible) && is_shiny(runtime)) {
+      else if (isTRUE(bootstrap_compatible) && rmarkdown:::is_shiny(runtime)) {
         format_deps <- append(format_deps, list(html_dependency_bootstrap("bootstrap")))
       }
       format_deps <- append(format_deps, extra_dependencies)
@@ -62,7 +63,7 @@ html_document_base <-
     }
     intermediates_generator <- function(original_input, encoding,
                                         intermediates_dir) {
-      return(copy_render_intermediates(original_input, encoding,
+      return(rmarkdown:::copy_render_intermediates(original_input, encoding,
                                        intermediates_dir, !self_contained))
     }
     # call the base html_document function
@@ -81,13 +82,15 @@ html_document_base <-
         output_str <- htmltools::restorePreserveChunks(output_str, preserved_chunks)
       }
       if (copy_resources) {
-        output_str <- copy_html_resources(one_string(output_str),
+        output_str <- rmarkdown:::copy_html_resources(rmarkdown:::one_string(output_str),
                                           lib_dir, output_dir)
       }
       else if (!self_contained) {
         image_relative <- function(img_src, src) {
-          image_prefix <- sprintf("/assets/courses/%s",
-                                  gsub("#", "/", metadata$tutorial$id, fixed = TRUE))
+          url_prefix <- "https://next.quantargo.com/assets/courses"
+          img_path <- gsub("#", "/", metadata$tutorial$id, fixed = TRUE)
+          split_path <- strsplit(img_path, "/")[[1]]
+          image_prefix <- file.path(url_prefix, paste(split_path[-length(split_path)], collapse = "/"))
 
           in_file <- utils::URLdecode(src)
           if (grepl("^[.][.]", in_file))
@@ -102,6 +105,7 @@ html_document_base <-
         output_str <- rmarkdown:::process_images(output_str, image_relative)
       }
 
+      #rmarkdown:::write_utf8(output_str, "output_str.html")
       html_doc <- xml2::read_html(paste(output_str, collapse = "\n"))
 
       # Remove unncecessary nodes
@@ -205,20 +209,11 @@ html_document_base <-
         }
       }
 
-      # json_out[[length(json_out) + 1]]  <- list(
-      #   contentId = "course-platform-new#Introduction#00-01",
-      #   contentType = "index",
-      #   contents = sectionContents
-      # )
-
-      xml2::write_html(html_doc, file = "output_str.html")
+      #rmarkdown:::write_utf8(output_str, output_file)
       output_file_json <- sub("\\.html$", "\\.json", output_file)
       jsonlite::write_json(json_out, output_file_json, auto_unbox = FALSE)
 
       output_file_json
-
-      #rmarkdown:::write_utf8(output_str, output_file)
-      #output_file
     }
     output_format(knitr = NULL, pandoc = pandoc_options(to = "html",
                                                         from = NULL, args = args), keep_md = FALSE, clean_supporting = FALSE,

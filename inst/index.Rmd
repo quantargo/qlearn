@@ -12,10 +12,8 @@ runtime: shiny_prerendered
 ---
 
 ```{r setup, include=FALSE}
-library(learnr)
 library(tidyverse)
-
-tutorial_options(exercise.timelimit = 60, exercise.checker = gradethis::grade_learnr)
+learnr::tutorial_options(exercise.timelimit = 60, exercise.checker = gradethis::grade_learnr)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
@@ -226,11 +224,11 @@ library(tidyverse)
 ## Quiz
 
 ```{r exercise-03-03-04, echo = FALSE}
-question('Which package is not loaded by `tidyverse`?',
-  answer("ggplot2"),
-  answer("dplyr"),
-  answer("tibble"),
-  answer("babynames", correct = TRUE, message = "Now that you are familiar with the data set, and have loaded the necessary packages, let's explore the data."),
+learnr::question('Which package is not loaded by `tidyverse`?',
+  learnr::answer("ggplot2"),
+  learnr::answer("dplyr"),
+  learnr::answer("tibble"),
+  learnr::answer("babynames", correct = TRUE, message = "Now that you are familiar with the data set, and have loaded the necessary packages, let's explore the data."),
   allow_retry = TRUE
 )
 ```

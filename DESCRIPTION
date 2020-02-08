@@ -1,16 +1,20 @@
 Package: qlearn
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Package to deploy courses for the Quantargo platform
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Mario Annau
+Maintainer: Mario Annau <mario.annau@quantargo.com>
+Description: Package to deploy courses for the Quantargo platform
+License: file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
   rmarkdown,
   jsonlite,
-  xml2
+  xml2,
+  qbit,
+  base64enc,
+  htmltools,
+  knitr,
+  magrittr
 RoxygenNote: 6.1.1
