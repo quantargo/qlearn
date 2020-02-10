@@ -120,21 +120,10 @@ html_document_base <-
       contentId <- metadata$tutorial$id
       moduleId <- strsplit(contentId, "#")[[1]][1]
 
-      json_out <- list(
-        list(
-          moduleId = unbox(moduleId),
-          contentId = unbox(contentId),
-          contentType = unbox("index"),
-          contents = lapply(sapply(sections, xml2::xml_attr, "id"),
-                            function(x) list(type = unbox("contentId"),
-                                             content = unbox(sprintf("%s#%s", contentId, x))))
-        )
-      )
-
       qid <- 1
+      json_out <- list()
+
       # Extract exercises from content and replace with placeholders
-
-
       for (s in sections) {
         sectionId <- s %>% xml_attr("id")
         nodes_exercise <- xml_find_all(s, ".//div[starts-with(@class, 'placeholder-')]")
@@ -148,7 +137,8 @@ html_document_base <-
               xml_text() %>%
               jsonlite::fromJSON()
 
-            objExercise$contentId <- paste(contentId, sectionId, objExercise$contentId, sep = "#")
+            objExercise$moduleId = unbox(moduleId)
+            objExercise$contentId <- paste(contentId, objExercise$contentId, sep = "#")
             objExercise$qbitName = sprintf("qbit-module-%s-dev", moduleId)
             attributes_unbox <- c("contentId", "qbitName", "contentType", "exerciseType", "solution")
             for (a in attributes_unbox) {
@@ -174,7 +164,8 @@ html_document_base <-
               jsonlite::fromJSON()
 
             objQuizOut <- list(
-              contentId = unbox(paste(contentId, sectionId, paste("quiz", qid, sep = "-"), sep = "#")),
+              moduleId = unbox(moduleId),
+              contentId = unbox(paste(contentId, paste("quiz", qid, sep = "-"), sep = "#")),
               contentType = unbox("exercise"),
               contents = list(list(
                 type = unbox("html"),
@@ -196,6 +187,7 @@ html_document_base <-
         if (length(nodes_exercise) < 1 && length(nodes_quizzes) < 1) {
           contentIdSection <- paste(contentId, sectionId, sep = "#")
           objSectionOut <- list(
+            moduleId = unbox(moduleId),
             contentId = unbox(contentIdSection),
             contentType = unbox("html"),
             contents = list(list(
@@ -210,6 +202,16 @@ html_document_base <-
           )
         }
       }
+      objIndex <- list(
+          moduleId = unbox(moduleId),
+          contentId = unbox(contentId),
+          contentType = unbox("index"),
+          contents = lapply(sapply(json_out, function(x) x$contentId),
+                            function(x) list(type = unbox("contentId"),
+                                             content = unbox(x)))
+        )
+      json_out[[length(json_out) + 1]]  <- objIndex
+
 
       #rmarkdown:::write_utf8(output_str, output_file)
       output_file_json <- sub("\\.html$", "\\.json", output_file)
