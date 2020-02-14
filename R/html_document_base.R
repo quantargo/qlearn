@@ -130,6 +130,9 @@ html_document_base <-
         nodes_quizzes <- xml_find_all(s, ".//script[starts-with(@data-for, 'htmlwidget-')]")
 
         sectionContents <- list()
+        node_title <- xml_find_all(s, ".//h2[1]")
+        section_title <- node_title %>% xml_text()
+        xml_remove(node_title)
 
         if (length(nodes_exercise) > 0) {
           for (e in nodes_exercise) {
@@ -137,10 +140,11 @@ html_document_base <-
               xml_text() %>%
               jsonlite::fromJSON()
 
-            objExercise$moduleId = unbox(moduleId)
+            objExercise$moduleId <- unbox(moduleId)
             objExercise$contentId <- paste(contentId, objExercise$contentId, sep = "#")
-            objExercise$qbitName = sprintf("qbit-module-%s-dev", moduleId)
-            attributes_unbox <- c("contentId", "qbitName", "contentType", "exerciseType", "solution")
+            objExercise$qbitName <- sprintf("qbit-module-%s-dev", moduleId)
+            objExercise$title <- section_title
+            attributes_unbox <- c("contentId", "qbitName", "contentType", "exerciseType", "solution", "title")
             for (a in attributes_unbox) {
               objExercise[[a]] <- unbox(objExercise[[a]])
             }
@@ -166,6 +170,7 @@ html_document_base <-
             objQuizOut <- list(
               moduleId = unbox(moduleId),
               contentId = unbox(paste(contentId, paste("quiz", qid, sep = "-"), sep = "#")),
+              title = unbox(section_title),
               contentType = unbox("exercise"),
               contents = list(list(
                 type = unbox("html"),
@@ -189,6 +194,7 @@ html_document_base <-
           objSectionOut <- list(
             moduleId = unbox(moduleId),
             contentId = unbox(contentIdSection),
+            title = unbox(section_title),
             contentType = unbox("html"),
             contents = list(list(
               type = unbox("html"),
@@ -205,11 +211,14 @@ html_document_base <-
       objIndex <- list(
           moduleId = unbox(moduleId),
           contentId = unbox(contentId),
+          title = unbox(metadata$title),
           contentType = unbox("index"),
-          contents = lapply(sapply(json_out, function(x) x$contentId),
-                            function(x) list(type = unbox("contentId"),
-                                             content = unbox(x)))
-        )
+          contents = lapply(json_out, function(x) {
+            list(type = unbox("contentId"),
+                 content = unbox(x$contentId),
+                 title = unbox(x$title))
+          })
+      )
       json_out[[length(json_out) + 1]]  <- objIndex
 
 
