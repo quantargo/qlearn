@@ -195,7 +195,7 @@ html_document_base <-
             moduleId = unbox(moduleId),
             contentId = unbox(contentIdSection),
             title = unbox(section_title),
-            contentType = unbox("html"),
+            contentType = unbox("content"),
             contents = list(list(
               type = unbox("html"),
               content = unbox(as.character(s))
