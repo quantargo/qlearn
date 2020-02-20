@@ -89,12 +89,16 @@ install_knitr_hooks <- function() {
         }
         hints <- unlist(related_chunks[grep("hint", names(related_chunks))], use.names = FALSE)
 
+        template_code <- paste(related_chunks[[1]], collapse = "\n")
+
         exObj <- list(
           contentId = unbox(options$label),
           contentType = unbox("exercise"),
-          exerciseType = unbox("code"),
-          template = unbox(paste(related_chunks[[1]], collapse = "\n"))
+          exerciseType = unbox("code")
         )
+        if(nchar(template_code) > 0) {
+          exObj$template <- unbox(template_code)
+        }
         if (!is.null(hints)) {
           exObj$hints <- hints
         }
