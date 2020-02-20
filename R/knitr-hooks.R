@@ -1,4 +1,4 @@
-
+#' @importFrom rlang "%||%"
 install_knitr_hooks <- function() {
 
   # set global tutorial option which we can use as a basis for hooks
@@ -80,14 +80,27 @@ install_knitr_hooks <- function() {
         related_setup_chunks <- unlist(sapply(related_chunks, function(x) attr(x, "chunk_opts")$exercise.setup))[[1]]
 
         # Build exercise object
+        solution_id <- grep("solution$", names(related_chunks))[1]
+        solution_id <- solution_id[!is.na(solution_id)]
+        solution <- if (length(solution_id) > 0) {
+          paste(related_chunks[[solution_id]], collapse = "\n")
+        } else {
+          NULL
+        }
+        hints <- unlist(related_chunks[grep("hint", names(related_chunks))], use.names = FALSE)
+
         exObj <- list(
           contentId = unbox(options$label),
           contentType = unbox("exercise"),
           exerciseType = unbox("code"),
-          hints = unlist(related_chunks[grep("hint", names(related_chunks))], use.names = FALSE),
-          solution = unbox(paste(related_chunks[grep("solution$", names(related_chunks))][[1]], collapse = "\n"))
+          template = unbox(paste(related_chunks[[1]], collapse = "\n"))
         )
-
+        if (!is.null(hints)) {
+          exObj$hints <- hints
+        }
+        if (!is.null(solution)) {
+          exObj$solution <- solution
+        }
         if (length(related_setup_chunks) > 0) {
           exObj$setup <- as.character(all_exercise_chunks[[related_setup_chunks]], use.names = FALSE)
         }

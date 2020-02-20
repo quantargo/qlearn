@@ -72,38 +72,38 @@ html_document_base <-
           self_contained)
         return(output_file)
       output_str <- rmarkdown:::read_utf8(output_file)
-      if (length(preserved_chunks) > 0) {
-        for (i in names(preserved_chunks)) {
-          output_str <- gsub(paste0("<p>", i, "</p>"), i, output_str,
-                             fixed = TRUE, useBytes = TRUE)
-          output_str <- gsub(paste0(" id=\"[^\"]*?", i, "[^\"]*?\" "),
-                             " ", output_str, useBytes = TRUE)
-        }
-        output_str <- htmltools::restorePreserveChunks(output_str, preserved_chunks)
-      }
-      if (copy_resources) {
-        output_str <- rmarkdown:::copy_html_resources(rmarkdown:::one_string(output_str),
-                                          lib_dir, output_dir)
-      }
-      else if (!self_contained) {
-        image_relative <- function(img_src, src) {
-          url_prefix <- "https://next.quantargo.com/assets/courses"
-          img_path <- gsub("#", "/", metadata$tutorial$id, fixed = TRUE)
-          split_path <- strsplit(img_path, "/")[[1]]
-          image_prefix <- file.path(url_prefix, paste(split_path[-length(split_path)], collapse = "/"))
+      # if (length(preserved_chunks) > 0) {
+      #   for (i in names(preserved_chunks)) {
+      #     output_str <- gsub(paste0("<p>", i, "</p>"), i, output_str,
+      #                        fixed = TRUE, useBytes = TRUE)
+      #     output_str <- gsub(paste0(" id=\"[^\"]*?", i, "[^\"]*?\" "),
+      #                        " ", output_str, useBytes = TRUE)
+      #   }
+      #   output_str <- htmltools::restorePreserveChunks(output_str, preserved_chunks)
+      # }
+      # if (copy_resources) {
+      #   output_str <- rmarkdown:::copy_html_resources(rmarkdown:::one_string(output_str),
+      #                                     lib_dir, output_dir)
+      # }
+      #else if (!self_contained) {
+      image_relative <- function(img_src, src) {
+        url_prefix <- "https://next.quantargo.com/assets/courses"
+        img_path <- gsub("#", "/", metadata$tutorial$id, fixed = TRUE)
+        split_path <- strsplit(img_path, "/")[[1]]
+        image_prefix <- file.path(url_prefix, paste(split_path[-length(split_path)], collapse = "/"))
 
-          in_file <- utils::URLdecode(src)
-          if (grepl("^[.][.]", in_file))
-            return(img_src)
-          if (length(in_file) && file.exists(in_file)) {
-            image_path_full <- file.path(image_prefix, src)
-            img_src <- sub(src, image_path_full, img_src)
-          }
-          img_src
+        in_file <- utils::URLdecode(src)
+        if (grepl("^[.][.]", in_file))
+          return(img_src)
+        if (length(in_file) && file.exists(in_file)) {
+          image_path_full <- file.path(image_prefix, src)
+          img_src <- sub(src, image_path_full, img_src)
         }
-
-        output_str <- rmarkdown:::process_images(output_str, image_relative)
+        img_src
       }
+
+      output_str <- rmarkdown:::process_images(output_str, image_relative)
+      #}
 
       #rmarkdown:::write_utf8(output_str, "output_str.html")
       html_doc <- xml2::read_html(paste(output_str, collapse = "\n"))
@@ -162,6 +162,7 @@ html_document_base <-
         }
 
         if (length(nodes_quizzes) > 0) {
+          browser()
           for (q in nodes_quizzes) {
             objQuiz <- q %>%
               xml_text() %>%

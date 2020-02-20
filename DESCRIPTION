@@ -16,5 +16,6 @@ Imports:
   base64enc,
   htmltools,
   knitr,
-  magrittr
+  magrittr,
+  rlang
 RoxygenNote: 6.1.1
