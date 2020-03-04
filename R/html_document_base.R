@@ -128,7 +128,7 @@ html_document_base <-
       # Extract exercises from content and replace with placeholders
       for (s in sections) {
         sectionId <- s %>% xml_attr("id")
-        nodes_exercise <- xml_find_all(s, ".//div[starts-with(@class, 'placeholder-')]")
+        nodes_exercise <- xml_find_all(s, ".//div[starts-with(@class, 'placeholder-exercise')]")
         nodes_quizzes <- xml_find_all(s, ".//script[starts-with(@data-for, 'htmlwidget-')]")
 
         sectionContents <- list()
@@ -224,13 +224,37 @@ html_document_base <-
           contents <- list()
           children <- xml_children(s)
 
+          ignore_next_elem <- FALSE
           for (child in children) {
+            if (ignore_next_elem) {
+              ignore_next_elem <- FALSE
+              next
+            }
             subnode <- xml2::read_html(as.character(child))
             nodes_editor_input <- xml_find_all(subnode, ".//pre[@class]/code")
             nodes_editor_output <- xml_find_all(subnode, ".//pre[not(@class)]/code")
             nodes_editor_img <- xml_find_all(subnode, ".//img")
+            nodes_recipe <- xml_find_all(subnode, ".//div[starts-with(@class, 'placeholder-recipe')]")
 
-            if (length(nodes_editor_img) > 0) {
+            if (length(nodes_recipe) > 0) {
+              for (e in nodes_recipe) {
+                objRecipe <- e %>%
+                  xml_text() %>%
+                  jsonlite::fromJSON()
+
+                elem <- list(
+                  type = unbox("code-recipe"),
+                  content = unbox(paste(objRecipe$code, collapse = "\n")),
+                  engine = unbox(objRecipe$engine),
+                  label = unbox(objRecipe$label)
+                )
+                if (!is.null(objRecipe$highlightLines)) {
+                  elem$highlightLines <- objRecipe$highlightLines
+                }
+                contents[[length(contents) + 1]]  <- elem
+                ignore_next_elem <- TRUE
+              }
+            } else if (length(nodes_editor_img) > 0) {
               for (e in nodes_editor_img) {
                 elem = list(
                   type = unbox("image"),

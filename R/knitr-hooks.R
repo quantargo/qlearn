@@ -16,8 +16,8 @@ install_knitr_hooks <- function() {
   is_exercise_chunk <- function(options) {
     isTRUE(options[["exercise"]])
   }
-  is_editor_chunk <- function(options) {
-    isTRUE(options[["editor"]]) || isTRUE(options[["highlightLines"]])
+  is_recipe_chunk <- function(options) {
+    isTRUE(options[["recipe"]])
   }
 
   # helper to find chunks that name a chunk as their setup chunk
@@ -91,7 +91,7 @@ install_knitr_hooks <- function() {
         } else {
           NULL
         }
-        hints <- unlist(related_chunks[grep("hint", names(related_chunks))], use.names = FALSE)
+        hints <- sapply(related_chunks[grep("hint", names(related_chunks))], paste, collapse = "\n")
 
         template_code <- paste(options$code, collapse = "\n")
 
@@ -122,28 +122,36 @@ install_knitr_hooks <- function() {
                         jsonlite::toJSON(exObj),
                         '</script>'), collapse = "")
         suffix <- sub("exercise-", "", options$label)
-        placeholder_div(suffix, extra_html = extra_html)
+        placeholder_div(suffix, extra_html = extra_html, type = "exercise")
 
+      } else if (is_recipe_chunk(options) ) {
+        recObj <- list(
+          label = options$label,
+          code = options$code,
+          engine = options$engine
+        )
+
+        if (!is.null(options$highlightLines)) {
+          vec <- sort(unique(options$highlightLines))
+          vecdiff <- c(1, diff(options$highlightLines))
+          vecjmp <- which(vecdiff != 1)
+          starts <- c(1, vecjmp)
+          ends <- c(vecjmp - 1, length(vecdiff))
+          recObj$highlightLines <- data.frame(startRow = starts, startCol = 0, endRow = ends, endCol = 0, fullLine = TRUE)
+        }
+
+        # markers <- suppressWarnings(highlight_markers_extract(options$code))
+        # if (nrow(markers) > 0) {
+        #   recObj$code <- highlight_markers_remove(options$code)
+        #   recObj$options$highlightMarkers <- markers
+        # }
+        extra_html <- paste0(c('<script type="application/json" data-opts-chunk="1">',
+                               jsonlite::toJSON(recObj),
+                               '</script>'), collapse = "")
+        suffix <- sub("exercise-", "", options$label)
+        suffix <- sub("editor-", "", options$label)
+        placeholder_div(suffix, extra_html = extra_html, type = "recipe")
       }
-      # else if (is_editor_chunk(options) ) {
-      #   edObj <- list(
-      #     label = options$label,
-      #     code = options$code,
-      #     engine = options$engine
-      #   )
-      #   markers <- suppressWarnings(highlight_markers_extract(options$code))
-      #   if (nrow(markers) > 0) {
-      #     edObj$code <- highlight_markers_remove(options$code)
-      #     edObj$options$highlightMarkers <- markers
-      #   }
-      #   extra_html <- paste0(c('<script type="application/json" data-opts-chunk="1">',
-      #                          jsonlite::toJSON(edObj),
-      #                          '</script>'), collapse = "")
-      #   suffix <- sub("exercise-", "", options$label)
-      #   suffix <- sub("editor-", "", options$label)
-      #   placeholder_div(suffix, extra_html = extra_html, type = "editor")
-      #   options$code
-      # }
       else {
         ""
       }
