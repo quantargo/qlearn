@@ -1,4 +1,5 @@
 #' @importFrom rlang "%||%"
+#' @importFrom reshape2 melt
 install_knitr_hooks <- function() {
 
   # set global tutorial option which we can use as a basis for hooks
@@ -14,6 +15,9 @@ install_knitr_hooks <- function() {
   # helper to check for an exercise chunk
   is_exercise_chunk <- function(options) {
     isTRUE(options[["exercise"]])
+  }
+  is_editor_chunk <- function(options) {
+    isTRUE(options[["editor"]]) || isTRUE(options[["highlightLines"]])
   }
 
   # helper to find chunks that name a chunk as their setup chunk
@@ -49,10 +53,10 @@ install_knitr_hooks <- function() {
   knitr::knit_hooks$set(qlearn = function(before, options, envir) {
 
     # # helper to produce an exercise wrapper div w/ the specified class
-    exercise_placeholder_div <- function(suffix = NULL, extra_html = NULL) {
+    placeholder_div <- function(suffix = NULL, extra_html = NULL, type = "exercise") {
       if (!is.null(suffix))
           suffix <- paste0("-", suffix)
-        class <- paste0("exercise", suffix)
+        class <- paste0(type, suffix)
         lines <- ifelse(is.numeric(options$exercise.lines),
                         options$exercise.lines, 0)
         completion  <- as.numeric(options$exercise.completion %||% 1 > 0)
@@ -89,12 +93,13 @@ install_knitr_hooks <- function() {
         }
         hints <- unlist(related_chunks[grep("hint", names(related_chunks))], use.names = FALSE)
 
-        template_code <- paste(related_chunks[[1]], collapse = "\n")
+        template_code <- paste(options$code, collapse = "\n")
 
         exObj <- list(
           contentId = unbox(options$label),
           contentType = unbox("exercise"),
-          exerciseType = unbox("code")
+          exerciseType = unbox("code"),
+          engine = options$engine
         )
         if(nchar(template_code) > 0) {
           exObj$template <- unbox(template_code)
@@ -117,9 +122,29 @@ install_knitr_hooks <- function() {
                         jsonlite::toJSON(exObj),
                         '</script>'), collapse = "")
         suffix <- sub("exercise-", "", options$label)
-        exercise_placeholder_div(suffix, extra_html = extra_html)
+        placeholder_div(suffix, extra_html = extra_html)
 
-      } else {
+      }
+      # else if (is_editor_chunk(options) ) {
+      #   edObj <- list(
+      #     label = options$label,
+      #     code = options$code,
+      #     engine = options$engine
+      #   )
+      #   markers <- suppressWarnings(highlight_markers_extract(options$code))
+      #   if (nrow(markers) > 0) {
+      #     edObj$code <- highlight_markers_remove(options$code)
+      #     edObj$options$highlightMarkers <- markers
+      #   }
+      #   extra_html <- paste0(c('<script type="application/json" data-opts-chunk="1">',
+      #                          jsonlite::toJSON(edObj),
+      #                          '</script>'), collapse = "")
+      #   suffix <- sub("exercise-", "", options$label)
+      #   suffix <- sub("editor-", "", options$label)
+      #   placeholder_div(suffix, extra_html = extra_html, type = "editor")
+      #   options$code
+      # }
+      else {
         ""
       }
 

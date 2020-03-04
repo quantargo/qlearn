@@ -6,7 +6,7 @@ html_document_base <-
             lib_dir = NULL, mathjax = "default", pandoc_args = NULL,
             template = "default", dependency_resolver = NULL, copy_resources = FALSE,
             extra_dependencies = NULL, bootstrap_compatible = FALSE,
-             ...) {
+            ...) {
     if (is.null(dependency_resolver))
       dependency_resolver <- rmarkdown:::html_dependency_resolver
     args <- c()
@@ -64,7 +64,7 @@ html_document_base <-
     intermediates_generator <- function(original_input, encoding,
                                         intermediates_dir) {
       return(rmarkdown:::copy_render_intermediates(original_input, encoding,
-                                       intermediates_dir, !self_contained))
+                                                   intermediates_dir, !self_contained))
     }
     # call the base html_document function
     post_processor <- function (metadata, input_file, output_file, clean, verbose) {
@@ -72,22 +72,22 @@ html_document_base <-
           self_contained)
         return(output_file)
       output_str <- rmarkdown:::read_utf8(output_file)
-      # if (length(preserved_chunks) > 0) {
-      #   for (i in names(preserved_chunks)) {
-      #     output_str <- gsub(paste0("<p>", i, "</p>"), i, output_str,
-      #                        fixed = TRUE, useBytes = TRUE)
-      #     output_str <- gsub(paste0(" id=\"[^\"]*?", i, "[^\"]*?\" "),
-      #                        " ", output_str, useBytes = TRUE)
-      #   }
-      #   output_str <- htmltools::restorePreserveChunks(output_str, preserved_chunks)
-      # }
-      # if (copy_resources) {
-      #   output_str <- rmarkdown:::copy_html_resources(rmarkdown:::one_string(output_str),
-      #                                     lib_dir, output_dir)
-      # }
+      if (length(preserved_chunks) > 0) {
+        for (i in names(preserved_chunks)) {
+          output_str <- gsub(paste0("<p>", i, "</p>"), i, output_str,
+                             fixed = TRUE, useBytes = TRUE)
+          output_str <- gsub(paste0(" id=\"[^\"]*?", i, "[^\"]*?\" "),
+                             " ", output_str, useBytes = TRUE)
+        }
+        output_str <- htmltools::restorePreserveChunks(output_str, preserved_chunks)
+      }
+      if (copy_resources) {
+        output_str <- rmarkdown:::copy_html_resources(rmarkdown:::one_string(output_str),
+                                                      lib_dir, output_dir)
+      }
       #else if (!self_contained) {
       image_relative <- function(img_src, src) {
-        url_prefix <- "https://next.quantargo.com/assets/courses"
+        url_prefix <- options("ASSETS_URL")
         img_path <- gsub("#", "/", metadata$tutorial$id, fixed = TRUE)
         split_path <- strsplit(img_path, "/")[[1]]
         image_prefix <- file.path(url_prefix, paste(split_path[-length(split_path)], collapse = "/"))
@@ -115,6 +115,8 @@ html_document_base <-
       xml_remove(nodes_html_widgets)
       nodes_comment <- xml2::xml_find_all(html_doc, "//comment()")
       xml_remove(nodes_comment)
+      nodes_exercise <- xml_find_all(html_doc, ".//div[starts-with(@class, 'tutorial-exercise')]")
+      xml_remove(nodes_exercise)
 
       sections <- xml2::xml_find_all(html_doc, "//div[@class='section level2']")
       contentId <- metadata$tutorial$id
@@ -142,14 +144,25 @@ html_document_base <-
 
             objExercise$moduleId <- unbox(moduleId)
             objExercise$contentId <- paste(contentId, objExercise$contentId, sep = "#")
-            objExercise$qbitName <- sprintf("qbit-module-%s-dev", moduleId)
+
+            qbitName <- sprintf("qbit-%s", moduleId)
+            if (options("STAGE") == "dev") {
+              qbitName <- sprintf("%s-dev", qbitName)
+            }
+
+            objExercise$qbitName <- qbitName
             objExercise$title <- section_title
-            attributes_unbox <- c("contentId", "qbitName", "contentType", "exerciseType", "solution", "title")
+            attributes_unbox <- c("contentId", "qbitName", "contentType", "exerciseType", "solution", "title", "template")
+            attributes_unbox <- attributes_unbox[attributes_unbox %in% names(objExercise)]
             for (a in attributes_unbox) {
               objExercise[[a]] <- unbox(objExercise[[a]])
             }
-
-            objExercise$contents <- lapply(xml_find_all(s, ".//p"), function(x) list(
+            # Strange issue with hints
+            if (!is.null(objExercise$hints)) {
+              objExercise$hints <- objExercise$hints[!objExercise$hints == ""]
+            }
+            xml_remove(e)
+            objExercise$contents <- lapply(xml_find_all(s, "."), function(x) list(
               type = unbox("html"),
               content = unbox(as.character(x))
             ))
@@ -162,24 +175,40 @@ html_document_base <-
         }
 
         if (length(nodes_quizzes) > 0) {
-          browser()
           for (q in nodes_quizzes) {
             objQuiz <- q %>%
               xml_text() %>%
               jsonlite::fromJSON()
+
+            # Check if node is a valid quesiton
+            if (is.null(objQuiz$x$answers)) {
+              # node does not seem to be a quiz, skipping
+              next
+            }
+
+            num_answers_correct <- which(objQuiz$x$answers$correct)
 
             objQuizOut <- list(
               moduleId = unbox(moduleId),
               contentId = unbox(paste(contentId, paste("quiz", qid, sep = "-"), sep = "#")),
               title = unbox(section_title),
               contentType = unbox("exercise"),
-              contents = list(list(
-                type = unbox("html"),
-                content = unbox(objQuiz$x$question)
-              )),
-              exerciseType = unbox(if (length(which(objQuiz$x$answers$correct)) == 1) "quiz-single-choice" else "quiz-multiple-choice"),
+              exerciseType = unbox(if (length(num_answers_correct) == 1) "quiz-single-choice" else "quiz-multiple-choice"),
               answers = objQuiz$x$answers
             )
+
+            if (nchar(objQuiz$x$question) > 0) {
+              objQuizOut$contents <- list(list(
+                type = unbox("html"),
+                content = unbox(objQuiz$x$question)
+              ))
+            } else {
+              xml_remove(q)
+              objQuizOut$contents <- lapply(xml_find_all(s, "."), function(x) list(
+                type = unbox("html"),
+                content = unbox(as.character(x))
+              ))
+            }
             json_out[[length(json_out) + 1]]  <- objQuizOut
             sectionContents[[length(sectionContents) + 1]] <- list(
               type = unbox("contentId"),
@@ -191,16 +220,60 @@ html_document_base <-
 
         # If no exercise or quiz in section -> Add entire content chunk
         if (length(nodes_exercise) < 1 && length(nodes_quizzes) < 1) {
+
+          contents <- list()
+          children <- xml_children(s)
+
+          for (child in children) {
+            subnode <- xml2::read_html(as.character(child))
+            nodes_editor_input <- xml_find_all(subnode, ".//pre[@class]/code")
+            nodes_editor_output <- xml_find_all(subnode, ".//pre[not(@class)]/code")
+            nodes_editor_img <- xml_find_all(subnode, ".//img")
+
+            if (length(nodes_editor_img) > 0) {
+              for (e in nodes_editor_img) {
+                elem = list(
+                  type = unbox("image"),
+                  content = unbox(xml_attr(e, "src"))
+                )
+                title <- xml_text(e, "src")
+                if (title != "") {
+                  elem$title <-title
+                }
+                contents[[length(contents) + 1]]  <- elem
+              }
+            } else if (length(nodes_editor_input) > 0) {
+              for (e in nodes_editor_input) {
+                elem = list(
+                  type = unbox("code-input"),
+                  content = unbox(xml_text(e))
+                )
+                contents[[length(contents) + 1]]  <- elem
+              }
+            } else if (length(nodes_editor_output) > 0) {
+              for (e in nodes_editor_output) {
+                elem = list(
+                  type = unbox("code-output"),
+                  content = unbox(xml_text(e))
+                )
+                contents[[length(contents) + 1]]  <- elem
+              }
+            } else {
+              elem = list(
+                type = unbox("html"),
+                content = unbox(as.character(child))
+              )
+              contents[[length(contents) + 1]]  <- elem
+            }
+          }
+
           contentIdSection <- paste(contentId, sectionId, sep = "#")
           objSectionOut <- list(
             moduleId = unbox(moduleId),
             contentId = unbox(contentIdSection),
             title = unbox(section_title),
             contentType = unbox("content"),
-            contents = list(list(
-              type = unbox("html"),
-              content = unbox(as.character(s))
-            ))
+            contents = contents
           )
           json_out[[length(json_out) + 1]]  <- objSectionOut
           sectionContents[[length(sectionContents) + 1]] <- list(
@@ -210,15 +283,15 @@ html_document_base <-
         }
       }
       objIndex <- list(
-          moduleId = unbox(moduleId),
-          contentId = unbox(contentId),
-          title = unbox(metadata$title),
-          contentType = unbox("index"),
-          contents = lapply(json_out, function(x) {
-            list(type = unbox("contentId"),
-                 content = unbox(x$contentId),
-                 title = unbox(x$title))
-          })
+        moduleId = unbox(moduleId),
+        contentId = unbox(contentId),
+        title = unbox(metadata$title),
+        contentType = unbox("index"),
+        contents = lapply(json_out, function(x) {
+          list(type = unbox("contentId"),
+               content = unbox(x$contentId),
+               title = unbox(x$title))
+        })
       )
       json_out[[length(json_out) + 1]]  <- objIndex
 

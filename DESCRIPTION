@@ -17,5 +17,6 @@ Imports:
   htmltools,
   knitr,
   magrittr,
-  rlang
+  rlang,
+  reshape2
 RoxygenNote: 6.1.1
