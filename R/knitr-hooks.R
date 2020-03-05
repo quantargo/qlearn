@@ -133,11 +133,11 @@ install_knitr_hooks <- function() {
 
         if (!is.null(options$highlightLines)) {
           vec <- sort(unique(options$highlightLines))
-          vecdiff <- c(1, diff(options$highlightLines))
+          vecdiff <- c(1, diff(vec))
           vecjmp <- which(vecdiff != 1)
           starts <- c(1, vecjmp)
           ends <- c(vecjmp - 1, length(vecdiff))
-          recObj$highlightLines <- data.frame(startRow = starts, startCol = 0, endRow = ends, endCol = 0, fullLine = TRUE)
+          recObj$highlightLines <- data.frame(startRow = vec[starts], startCol = 0, endRow = vec[ends], endCol = 0, fullLine = TRUE)
         }
 
         # markers <- suppressWarnings(highlight_markers_extract(options$code))
