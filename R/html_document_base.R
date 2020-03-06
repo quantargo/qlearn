@@ -161,6 +161,12 @@ html_document_base <-
             if (!is.null(objExercise$hints)) {
               objExercise$hints <- objExercise$hints[!objExercise$hints == ""]
             }
+            if (!is.null(objExercise$check)) {
+              objExercise$check <- unbox(objExercise$check)
+            }
+            if (!is.null(objExercise$engine)) {
+              objExercise$engine <- unbox(objExercise$engine)
+            }
             xml_remove(e)
             objExercise$contents <- lapply(xml_find_all(s, "."), function(x) list(
               type = unbox("html"),

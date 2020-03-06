@@ -7,7 +7,7 @@ qlearn <- function(toc = FALSE, toc_depth = 3, toc_float = FALSE, number_section
                                                                                                      "show", "hide"),
                              code_download = FALSE, smart = TRUE,
                              self_contained = FALSE, theme = NULL, highlight = NULL,
-                             mathjax = NULL, template = rmarkdown:::rmarkdown_system_file("rmd/fragment/default.html"),
+                             mathjax = NULL, template = rmarkdown:::pkg_file("rmd/fragment/default.html"),
                              extra_dependencies = NULL,
                              css = NULL, includes = NULL, keep_md = FALSE, lib_dir = NULL,
                              md_extensions = NULL, pandoc_args = "--mathjax",
@@ -49,7 +49,7 @@ qlearn <- function(toc = FALSE, toc_depth = 3, toc_float = FALSE, number_section
                                           "1"))
   }
   if (identical(template, "default"))
-    args <- c(args, "--template", pandoc_path_arg(rmarkdown:::rmarkdown_system_file("rmd/h/default.html")))
+    args <- c(args, "--template", pandoc_path_arg(rmarkdown:::pkg_file("rmd/h/default.html")))
   else if (!is.null(template))
     args <- c(args, "--template", pandoc_path_arg(template))
   code_folding <- match.arg(code_folding)

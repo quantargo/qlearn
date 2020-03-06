@@ -92,6 +92,7 @@ install_knitr_hooks <- function() {
           NULL
         }
         hints <- sapply(related_chunks[grep("hint", names(related_chunks))], paste, collapse = "\n")
+        check <- paste(do.call("c", related_chunks[grep("check", names(related_chunks))]), collapse = "\n")
 
         template_code <- paste(options$code, collapse = "\n")
 
@@ -99,7 +100,7 @@ install_knitr_hooks <- function() {
           contentId = unbox(options$label),
           contentType = unbox("exercise"),
           exerciseType = unbox("code"),
-          engine = options$engine
+          engine = unbox(options$engine)
         )
         if(nchar(template_code) > 0) {
           exObj$template <- unbox(template_code)
@@ -109,6 +110,9 @@ install_knitr_hooks <- function() {
         }
         if (!is.null(solution)) {
           exObj$solution <- solution
+        }
+        if (!is.null(check) && (nchar(check) > 0) ) {
+          exObj$check <- unbox(check)
         }
         if (length(related_setup_chunks) > 0) {
           exObj$setup <- as.character(all_exercise_chunks[[related_setup_chunks]], use.names = FALSE)
@@ -128,7 +132,7 @@ install_knitr_hooks <- function() {
         recObj <- list(
           label = options$label,
           code = options$code,
-          engine = options$engine
+          engine = unbox(options$engine)
         )
 
         if (!is.null(options$highlightLines)) {
