@@ -140,7 +140,7 @@ html_document_base <-
           for (e in nodes_exercise) {
             objExercise <- e %>%
               xml_text() %>%
-              jsonlite::fromJSON()
+              jsonlite::unserializeJSON()
 
             objExercise$moduleId <- unbox(moduleId)
             objExercise$contentId <- paste(contentId, objExercise$contentId, sep = "#")
@@ -152,14 +152,15 @@ html_document_base <-
 
             objExercise$qbitName <- qbitName
             objExercise$title <- section_title
-            attributes_unbox <- c("contentId", "qbitName", "contentType", "exerciseType", "solution", "title", "template")
+            attributes_unbox <- c("contentId", "qbitName", "contentType", "exerciseType", "solution", "title", "template", "hintsAll", "includeRecipe", "setup")
             attributes_unbox <- attributes_unbox[attributes_unbox %in% names(objExercise)]
             for (a in attributes_unbox) {
               objExercise[[a]] <- unbox(objExercise[[a]])
             }
             # Strange issue with hints
             if (!is.null(objExercise$hints)) {
-              objExercise$hints <- objExercise$hints[!objExercise$hints == ""]
+              objExercise$hints <- objExercise$hints
+              rownames(objExercise$hints) <- NULL
             }
             if (!is.null(objExercise$check)) {
               objExercise$check <- unbox(objExercise$check)
@@ -224,6 +225,7 @@ html_document_base <-
           }
         }
 
+        contentType <- "content"
         # If no exercise or quiz in section -> Add entire content chunk
         if (length(nodes_exercise) < 1 && length(nodes_quizzes) < 1) {
 
@@ -246,7 +248,7 @@ html_document_base <-
               for (e in nodes_recipe) {
                 objRecipe <- e %>%
                   xml_text() %>%
-                  jsonlite::fromJSON()
+                  jsonlite::unserializeJSON()
 
                 elem <- list(
                   type = unbox("code-recipe"),
@@ -254,6 +256,10 @@ html_document_base <-
                   engine = unbox(objRecipe$engine),
                   label = unbox(objRecipe$label)
                 )
+                if (objRecipe$label == "recipe") {
+                  contentType <- "recipe"
+                }
+
                 if (!is.null(objRecipe$highlightLines)) {
                   elem$highlightLines <- objRecipe$highlightLines
                 }
@@ -302,7 +308,7 @@ html_document_base <-
             moduleId = unbox(moduleId),
             contentId = unbox(contentIdSection),
             title = unbox(section_title),
-            contentType = unbox("content"),
+            contentType = unbox(contentType),
             contents = contents
           )
           json_out[[length(json_out) + 1]]  <- objSectionOut
@@ -312,6 +318,21 @@ html_document_base <-
           )
         }
       }
+
+      ctypes <- sapply(json_out, function(x) x$contentType)
+      recipeIdx <- which(ctypes == "recipe")
+
+      # TODO: should be changed to `stopifnot(length(recipeIdx) != 1)`
+      stopifnot(recipeIdx <= 1)
+
+      ## Add contentIds if recipe is present
+      if (recipeIdx == 1) {
+        includeRecipe <- sapply(json_out, function(x) !is.null(x$includeRecipe) && x$includeRecipe)
+        example_indices <- (ctypes == "exercise") & includeRecipe
+        json_out[[recipeIdx]]$examples <- sapply(json_out[example_indices],
+                                                 function(x) x$contentId)
+      }
+
       objIndex <- list(
         moduleId = unbox(moduleId),
         contentId = unbox(contentId),

@@ -81,6 +81,14 @@ install_knitr_hooks <- function() {
         label_query <- "knitr::knit_code$get()"
         all_exercise_chunks <- eval(parse(text = label_query))
         related_chunks <- all_exercise_chunks[grep(options$label, names(all_exercise_chunks))]
+
+        setup_chunk <- which(names(all_exercise_chunks) == sprintf("%s-setup", options$label))
+        if (length(setup_chunk) > 0) {
+          setup_chunk <- all_exercise_chunks[[setup_chunk[1]]]
+        } else {
+          setup_chunk <- NULL
+        }
+
         related_setup_chunks <- unlist(sapply(related_chunks, function(x) attr(x, "chunk_opts")$exercise.setup))[[1]]
 
         # Build exercise object
@@ -91,39 +99,52 @@ install_knitr_hooks <- function() {
         } else {
           NULL
         }
+
         hints <- sapply(related_chunks[grep("hint", names(related_chunks))], paste, collapse = "\n")
+        if (length(hints) > 0) {
+          hints <- data.frame(label = names(hints), type = "code-input", content = hints)
+        } else {
+          hints <- NULL
+        }
+
         check <- paste(do.call("c", related_chunks[grep("check", names(related_chunks))]), collapse = "\n")
 
         template_code <- paste(options$code, collapse = "\n")
 
         exObj <- list(
-          contentId = unbox(options$label),
-          contentType = unbox("exercise"),
-          exerciseType = unbox("code"),
-          engine = unbox(options$engine)
+          contentId = options$label,
+          contentType = "exercise",
+          exerciseType = "code",
+          engine = options$engine
         )
         if(nchar(template_code) > 0) {
-          exObj$template <- unbox(template_code)
+          exObj$template <- template_code
         }
         if (!is.null(hints)) {
           exObj$hints <- hints
+          exObj$hintsAll <- nrow(hints)
+        } else {
+          exObj$hintsAll <- 0
         }
         if (!is.null(solution)) {
           exObj$solution <- solution
         }
         if (!is.null(check) && (nchar(check) > 0) ) {
-          exObj$check <- unbox(check)
+          exObj$check <- check
         }
-        if (length(related_setup_chunks) > 0) {
-          exObj$setup <- as.character(all_exercise_chunks[[related_setup_chunks]], use.names = FALSE)
+        if (!is.null(setup_chunk)) {
+          exObj$setup <- paste(setup_chunk, collapse = "\n")
+        }
+        if(!is.null(options$includeRecipe)) {
+          exObj$includeRecipe <- TRUE
         }
 
-        attributes(exObj$hints) <- NULL
-        attributes(exObj$solution) <- NULL
-        exObj$solution <- unbox(exObj$solution)
+        #attributes(exObj$hints) <- NULL
+        #attributes(exObj$solution) <- NULL
+        exObj$solution <- exObj$solution
 
         extra_html <- paste0(c('<script type="application/json" data-opts-chunk="1">',
-                        jsonlite::toJSON(exObj),
+                        jsonlite::serializeJSON(exObj),
                         '</script>'), collapse = "")
         suffix <- sub("exercise-", "", options$label)
         placeholder_div(suffix, extra_html = extra_html, type = "exercise")
@@ -132,7 +153,7 @@ install_knitr_hooks <- function() {
         recObj <- list(
           label = options$label,
           code = options$code,
-          engine = unbox(options$engine)
+          engine = options$engine
         )
 
         if (!is.null(options$highlightLines)) {
@@ -150,7 +171,7 @@ install_knitr_hooks <- function() {
         #   recObj$options$highlightMarkers <- markers
         # }
         extra_html <- paste0(c('<script type="application/json" data-opts-chunk="1">',
-                               jsonlite::toJSON(recObj),
+                               jsonlite::serializeJSON(recObj),
                                '</script>'), collapse = "")
         suffix <- sub("exercise-", "", options$label)
         suffix <- sub("editor-", "", options$label)
