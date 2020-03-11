@@ -226,6 +226,8 @@ html_document_base <-
         }
 
         contentType <- "content"
+        contentIdSection <- paste(contentId, sectionId, sep = "#")
+
         # If no exercise or quiz in section -> Add entire content chunk
         if (length(nodes_exercise) < 1 && length(nodes_quizzes) < 1) {
 
@@ -251,13 +253,14 @@ html_document_base <-
                   jsonlite::unserializeJSON()
 
                 elem <- list(
-                  type = unbox("code-recipe"),
+                  type = unbox("code-highlight"),
                   content = unbox(paste(objRecipe$code, collapse = "\n")),
                   engine = unbox(objRecipe$engine),
                   label = unbox(objRecipe$label)
                 )
                 if (objRecipe$label == "recipe") {
                   contentType <- "recipe"
+                  contentIdSection <- paste(contentId, sub("^section-", "recipe-", sectionId), sep = "#")
                 }
 
                 if (!is.null(objRecipe$highlightLines)) {
@@ -303,7 +306,7 @@ html_document_base <-
             }
           }
 
-          contentIdSection <- paste(contentId, sectionId, sep = "#")
+
           objSectionOut <- list(
             moduleId = unbox(moduleId),
             contentId = unbox(contentIdSection),
@@ -323,10 +326,10 @@ html_document_base <-
       recipeIdx <- which(ctypes == "recipe")
 
       # TODO: should be changed to `stopifnot(length(recipeIdx) != 1)`
-      stopifnot(recipeIdx <= 1)
+      stopifnot(length(recipeIdx) <= 1)
 
       ## Add contentIds if recipe is present
-      if (recipeIdx == 1) {
+      if (length(recipeIdx) == 1) {
         includeRecipe <- sapply(json_out, function(x) !is.null(x$includeRecipe) && x$includeRecipe)
         example_indices <- (ctypes == "exercise") & includeRecipe
         json_out[[recipeIdx]]$examples <- sapply(json_out[example_indices],
