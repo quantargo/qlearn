@@ -12,11 +12,13 @@ Imports:
   rmarkdown,
   jsonlite,
   xml2,
-  qbit,
   base64enc,
   htmltools,
   knitr,
   magrittr,
   rlang,
-  reshape2
+  reshape2,
+  qbit
 RoxygenNote: 6.1.1
+Remotes:  
+  quantargo/qbit
