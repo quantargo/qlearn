@@ -18,7 +18,9 @@ Imports:
   magrittr,
   rlang,
   reshape2,
-  qbit
+  qbit,
+  learnr
 RoxygenNote: 6.1.1
 Remotes:  
-  quantargo/qbit
+  quantargo/qbit,
+  quantargo/learnr
