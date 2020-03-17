@@ -87,16 +87,15 @@ html_document_base <-
       }
       #else if (!self_contained) {
       image_relative <- function(img_src, src) {
-        url_prefix <- options("ASSETS_URL")
         img_path <- gsub("#", "/", metadata$tutorial$id, fixed = TRUE)
         split_path <- strsplit(img_path, "/")[[1]]
-        image_prefix <- file.path(url_prefix, paste(split_path[-length(split_path)], collapse = "/"))
+        image_prefix <- options("ASSETS_URL")
 
         in_file <- utils::URLdecode(src)
         if (grepl("^[.][.]", in_file))
           return(img_src)
         if (length(in_file) && file.exists(in_file)) {
-          image_path_full <- file.path(image_prefix, src)
+          image_path_full <- file.path(image_prefix, img_path, src)
           img_src <- sub(src, image_path_full, img_src)
         }
         img_src
