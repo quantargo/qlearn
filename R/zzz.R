@@ -5,11 +5,7 @@
 
   assets_url <- Sys.getenv("ASSETS_URL")
   if (assets_url == "") {
-    if (options("STAGE") == "dev") {
-      options(ASSETS_URL = "https://next.quantargo.com/assets/courses")
-    } else if (options("STAGE") == "prod") {
-      options(ASSETS_URL = "https://www.quantargo.com/assets/courses")
-    }
+    options(ASSETS_URL = "/assets/courses")
   } else {
     options(ASSETS_URL = assets_url)
   }
