@@ -153,7 +153,7 @@ install_knitr_hooks <- function() {
         suffix <- sub("exercise-", "", options$label)
         placeholder_div(suffix, extra_html = extra_html, type = "exercise")
 
-      } else if (is_recipe_chunk(options) ) {
+      } else if (is_recipe_chunk(options) || !is.null(options$highlightLines)) {
         recObj <- list(
           label = options$label,
           code = options$code,
@@ -179,18 +179,11 @@ install_knitr_hooks <- function() {
                                '</script>'), collapse = "")
         suffix <- sub("exercise-", "", options$label)
         suffix <- sub("editor-", "", options$label)
+
         placeholder_div(suffix, extra_html = extra_html, type = "recipe")
-      }
-      else {
+      } else {
         ""
       }
-
-      # else if (is_exercise_support_chunk(options)) {
-      #   write_json(unclass(options), path = paste0(options$label, ".json"), auto_unbox = TRUE)
-      # }
-
-    } else {
-      ""
     }
   })
 }
