@@ -166,7 +166,7 @@ install_knitr_hooks <- function() {
           vecjmp <- which(vecdiff != 1)
           starts <- c(1, vecjmp)
           ends <- c(vecjmp - 1, length(vecdiff))
-          recObj$highlightLines <- data.frame(startRow = vec[starts], startCol = 0, endRow = vec[ends], endCol = 0, fullLine = TRUE)
+          recObj$highlightLines <- data.frame(startRow = vec[starts] - 1, startCol = 0, endRow = vec[ends] - 1, endCol = 0, fullLine = TRUE)
         }
 
         # markers <- suppressWarnings(highlight_markers_extract(options$code))
