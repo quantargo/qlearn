@@ -258,7 +258,7 @@ html_document_base <-
                   engine = unbox(objRecipe$engine),
                   label = unbox(objRecipe$label)
                 )
-                if (objRecipe$contentType == "recipe") {
+                if (!is.null(objRecipe$contentType) && objRecipe$contentType == "recipe") {
                   contentIdSection <- paste(contentId, sub("^section-", "recipe-", sectionId), sep = "#")
                   contentType <- "recipe"
                 }
