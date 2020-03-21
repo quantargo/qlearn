@@ -111,16 +111,25 @@ install_knitr_hooks <- function() {
 
         template_code <- paste(options$code, collapse = "\n")
 
-        packages_loaded <- names(sessionInfo()$otherPkgs)
-        packages_loaded <- packages_loaded[!packages_loaded %in% c("shiny", "qlearn", "learnr", "testwhat")]
+        packages_loaded <- NULL
+        if ("packagesLoaded" %in% names(options)){
+          if (length(options$packagesLoaded) > 0) {
+            packages_loaded <- options$packagesLoaded
+          }
+        } else {
+          packages_loaded <- names(sessionInfo()$otherPkgs)
+          packages_loaded <- packages_loaded[!packages_loaded %in% c("shiny", "qlearn", "learnr", "testwhat")]
+        }
 
         exObj <- list(
           contentId = options$label,
           contentType = "exercise",
           exerciseType = "code",
-          engine = options$engine,
-          packagesLoaded = packages_loaded
+          engine = options$engine
         )
+        if (!is.null(packages_loaded)) {
+          exObj$packagesLoaded = packages_loaded
+        }
         if(nchar(template_code) > 0) {
           exObj$template <- template_code
         }
