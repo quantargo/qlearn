@@ -258,16 +258,17 @@ html_document_base <-
                   engine = unbox(objRecipe$engine),
                   label = unbox(objRecipe$label)
                 )
-                if (objRecipe$label == "recipe") {
-                  contentType <- "recipe"
+                if (objRecipe$contentType == "recipe") {
                   contentIdSection <- paste(contentId, sub("^section-", "recipe-", sectionId), sep = "#")
+                  contentType <- "recipe"
                 }
 
                 if (!is.null(objRecipe$highlightLines)) {
                   elem$highlightLines <- objRecipe$highlightLines
                 }
                 contents[[length(contents) + 1]]  <- elem
-                ignore_next_elem <- TRUE
+
+                #ignore_next_elem <- TRUE
               }
             } else if (length(nodes_editor_img) > 0) {
               for (e in nodes_editor_img) {

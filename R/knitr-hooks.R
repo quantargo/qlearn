@@ -160,6 +160,10 @@ install_knitr_hooks <- function() {
           engine = options$engine
         )
 
+        if (is_recipe_chunk(options)) {
+          recObj$contentType = "recipe"
+        }
+
         if (!is.null(options$highlightLines)) {
           vec <- sort(unique(options$highlightLines))
           vecdiff <- c(1, diff(vec))
