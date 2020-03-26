@@ -148,7 +148,7 @@ html_document_base <-
           sectionId <- s %>% xml_attr("id")
           objOut <- list(
             moduleId = unbox(moduleId),
-            contentId = paste(contentId, sectionId, sep = "#"),
+            contentId = unbox(paste(contentId, sectionId, sep = "#")),
             title = unbox(section_title),
             contentType = unbox("content")
           )
