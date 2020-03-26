@@ -145,9 +145,10 @@ html_document_base <-
         } else if (!is.null(objRecipeOut)) {
           objOut  <- objRecipeOut
         } else {
+          sectionId <- s %>% xml_attr("id")
           objOut <- list(
             moduleId = unbox(moduleId),
-            contentId = unbox(contentId),
+            contentId = paste(contentId, sectionId, sep = "#"),
             title = unbox(section_title),
             contentType = unbox("content")
           )
