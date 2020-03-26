@@ -166,7 +166,8 @@ install_knitr_hooks <- function() {
         recObj <- list(
           label = options$label,
           code = options$code,
-          engine = options$engine
+          engine = options$engine,
+          contentType = "content"
         )
 
         if (is_recipe_chunk(options)) {

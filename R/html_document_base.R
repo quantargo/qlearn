@@ -127,200 +127,39 @@ html_document_base <-
 
       # Extract exercises from content and replace with placeholders
       for (s in sections) {
-        sectionId <- s %>% xml_attr("id")
-        nodes_exercise <- xml_find_all(s, ".//div[starts-with(@class, 'placeholder-exercise')]")
-        nodes_quizzes <- xml_find_all(s, ".//script[starts-with(@data-for, 'htmlwidget-')]")
-
         sectionContents <- list()
         node_title <- xml_find_all(s, ".//h2[1]")
         section_title <- node_title %>% xml_text()
         xml_remove(node_title)
 
-        if (length(nodes_exercise) > 0) {
-          for (e in nodes_exercise) {
-            objExercise <- e %>%
-              xml_text() %>%
-              jsonlite::unserializeJSON()
+        objExercise <- parse_exercise(s, moduleId, contentId, section_title)
+        objQuizOut <- parse_quiz(s, moduleId, contentId, section_title, qid)
+        objRecipeOut <- parse_recipe(s, moduleId, contentId, section_title)
+        objOut <- NULL
 
-            objExercise$moduleId <- unbox(moduleId)
-            objExercise$contentId <- paste(contentId, objExercise$contentId, sep = "#")
-
-            qbitName <- sprintf("qbit-%s", moduleId)
-            if (options("STAGE") == "dev") {
-              qbitName <- sprintf("%s-dev", qbitName)
-            }
-
-            objExercise$qbitName <- qbitName
-            objExercise$title <- section_title
-            attributes_unbox <- c("contentId", "qbitName", "contentType", "exerciseType", "solution", "title", "template", "hintsAll", "includeRecipe", "setup")
-            attributes_unbox <- attributes_unbox[attributes_unbox %in% names(objExercise)]
-            for (a in attributes_unbox) {
-              objExercise[[a]] <- unbox(objExercise[[a]])
-            }
-            # Strange issue with hints
-            if (!is.null(objExercise$hints)) {
-              objExercise$hints <- objExercise$hints
-              rownames(objExercise$hints) <- NULL
-            }
-            if (!is.null(objExercise$check)) {
-              objExercise$check <- unbox(objExercise$check)
-            }
-            if (!is.null(objExercise$engine)) {
-              objExercise$engine <- unbox(objExercise$engine)
-            }
-            xml_remove(e)
-            objExercise$contents <- lapply(xml_find_all(s, "."), function(x) list(
-              type = unbox("html"),
-              content = unbox(as.character(x))
-            ))
-            json_out[[length(json_out) + 1]]  <- objExercise
-            sectionContents[[length(sectionContents) + 1]] <- list(
-              type = unbox("contentId"),
-              content = unbox(objExercise$contentId)
-            )
-          }
-        }
-
-        if (length(nodes_quizzes) > 0) {
-          for (q in nodes_quizzes) {
-            objQuiz <- q %>%
-              xml_text() %>%
-              jsonlite::fromJSON()
-
-            # Check if node is a valid quesiton
-            if (is.null(objQuiz$x$answers)) {
-              # node does not seem to be a quiz, skipping
-              next
-            }
-
-            num_answers_correct <- which(objQuiz$x$answers$correct)
-
-            objQuizOut <- list(
-              moduleId = unbox(moduleId),
-              contentId = unbox(paste(contentId, paste("quiz", qid, sep = "-"), sep = "#")),
-              title = unbox(section_title),
-              contentType = unbox("exercise"),
-              exerciseType = unbox(if (length(num_answers_correct) == 1) "quiz-single-choice" else "quiz-multiple-choice"),
-              answers = objQuiz$x$answers
-            )
-
-            if (nchar(objQuiz$x$question) > 0) {
-              objQuizOut$contents <- list(list(
-                type = unbox("html"),
-                content = unbox(objQuiz$x$question)
-              ))
-            } else {
-              xml_remove(q)
-              objQuizOut$contents <- lapply(xml_find_all(s, "."), function(x) list(
-                type = unbox("html"),
-                content = unbox(as.character(x))
-              ))
-            }
-            json_out[[length(json_out) + 1]]  <- objQuizOut
-            sectionContents[[length(sectionContents) + 1]] <- list(
-              type = unbox("contentId"),
-              content = unbox(objQuizOut$contentId)
-            )
-            qid <- qid + 1
-          }
-        }
-
-        contentType <- "content"
-        contentIdSection <- paste(contentId, sectionId, sep = "#")
-
-        # If no exercise or quiz in section -> Add entire content chunk
-        if (length(nodes_exercise) < 1 && length(nodes_quizzes) < 1) {
-
-          contents <- list()
-          children <- xml_children(s)
-
-          ignore_next_elem <- FALSE
-          for (child in children) {
-            if (ignore_next_elem) {
-              ignore_next_elem <- FALSE
-              next
-            }
-            subnode <- xml2::read_html(as.character(child))
-            nodes_editor_input <- xml_find_all(subnode, ".//pre[@class]/code")
-            nodes_editor_output <- xml_find_all(subnode, ".//pre[not(@class)]/code")
-            nodes_editor_img <- xml_find_all(subnode, ".//img")
-            nodes_recipe <- xml_find_all(subnode, ".//div[starts-with(@class, 'placeholder-recipe')]")
-
-            if (length(nodes_recipe) > 0) {
-              for (e in nodes_recipe) {
-                objRecipe <- e %>%
-                  xml_text() %>%
-                  jsonlite::unserializeJSON()
-
-                elem <- list(
-                  type = unbox("code-highlight"),
-                  content = unbox(paste(objRecipe$code, collapse = "\n")),
-                  engine = unbox(objRecipe$engine),
-                  label = unbox(objRecipe$label)
-                )
-                if (!is.null(objRecipe$contentType) && objRecipe$contentType == "recipe") {
-                  contentIdSection <- paste(contentId, sub("^section-", "recipe-", sectionId), sep = "#")
-                  contentType <- "recipe"
-                }
-
-                if (!is.null(objRecipe$highlightLines)) {
-                  elem$highlightLines <- objRecipe$highlightLines
-                }
-                contents[[length(contents) + 1]]  <- elem
-
-                #ignore_next_elem <- TRUE
-              }
-            } else if (length(nodes_editor_img) > 0) {
-              for (e in nodes_editor_img) {
-                elem = list(
-                  type = unbox("image"),
-                  content = unbox(xml_attr(e, "src"))
-                )
-                title <- xml_text(e, "src")
-                if (title != "") {
-                  elem$title <-title
-                }
-                contents[[length(contents) + 1]]  <- elem
-              }
-            } else if (length(nodes_editor_input) > 0) {
-              for (e in nodes_editor_input) {
-                elem = list(
-                  type = unbox("code-input"),
-                  content = unbox(xml_text(e))
-                )
-                contents[[length(contents) + 1]]  <- elem
-              }
-            } else if (length(nodes_editor_output) > 0) {
-              for (e in nodes_editor_output) {
-                elem = list(
-                  type = unbox("code-output"),
-                  content = unbox(xml_text(e))
-                )
-                contents[[length(contents) + 1]]  <- elem
-              }
-            } else {
-              elem = list(
-                type = unbox("html"),
-                content = unbox(as.character(child))
-              )
-              contents[[length(contents) + 1]]  <- elem
-            }
-          }
-
-
-          objSectionOut <- list(
+        if (!is.null(objExercise)) {
+          objOut  <- objExercise
+        } else if (!is.null(objQuizOut)) {
+          qid <- qid + 1
+          objOut  <- objQuizOut
+        } else if (!is.null(objRecipeOut)) {
+          objOut  <- objRecipeOut
+        } else {
+          objOut <- list(
             moduleId = unbox(moduleId),
-            contentId = unbox(contentIdSection),
+            contentId = unbox(contentId),
             title = unbox(section_title),
-            contentType = unbox(contentType),
-            contents = contents
-          )
-          json_out[[length(json_out) + 1]]  <- objSectionOut
-          sectionContents[[length(sectionContents) + 1]] <- list(
-            type = unbox("contentId"),
-            content = unbox(contentIdSection)
+            contentType = unbox("content")
           )
         }
+
+        objOut$contents <- c(objOut$contents, parse_content_children(s, contentId, sectionId))
+
+        json_out[[length(json_out) + 1]]  <- objOut
+        sectionContents[[length(sectionContents) + 1]] <- list(
+          type = unbox("contentId"),
+          content = unbox(objOut$contentId)
+        )
       }
 
       ctypes <- sapply(json_out, function(x) x$contentType)
