@@ -5,7 +5,7 @@ install_knitr_hooks <- function() {
   # set global tutorial option which we can use as a basis for hooks
   # (this is so we don't collide with hooks set by the user or
   # by other packages or Rmd output formats)
-  knitr::opts_chunk$set(qlearn = TRUE)
+  knitr::opts_chunk$set(qlearn = TRUE, comment=NA)
 
   # helper to check for runtime: shiny_prerendered being active
   is_shiny_prerendered_active <- function() {
