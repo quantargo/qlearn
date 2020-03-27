@@ -185,6 +185,7 @@ html_document_base <-
         contents = lapply(json_out, function(x) {
           list(type = unbox("contentId"),
                content = unbox(x$contentId),
+               contentId = unbox(x$contentId),
                title = unbox(x$title))
         })
       )
