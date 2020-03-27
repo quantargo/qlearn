@@ -150,7 +150,7 @@ html_document_base <-
             moduleId = unbox(moduleId),
             contentId = unbox(paste(contentId, sectionId, sep = "#")),
             title = unbox(section_title),
-            contentType = unbox("content")
+            contentType = unbox("section")
           )
         }
 
