@@ -152,6 +152,23 @@ parse_content_children <- function(s, contentId, sectionId) {
         if (title != "") {
           elem$title <-title
         }
+
+        width = xml_attr(e, "width")
+        if (!is.na(width)) {
+          if (!is.na(as.integer(width))) {
+            width <- as.integer(width)
+          }
+          elem$width <- unbox(width)
+        }
+
+        height = xml_attr(e, "height")
+        if (!is.na(height)) {
+          if (!is.na(as.integer(height))) {
+            height <- as.integer(height)
+          }
+          elem$height <- unbox(height)
+        }
+
         contents[[length(contents) + 1]]  <- elem
       }
     } else if (length(nodes_editor_input) > 0) {
