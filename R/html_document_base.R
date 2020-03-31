@@ -154,7 +154,11 @@ html_document_base <-
           )
         }
 
-        objOut$contents <- c(objOut$contents, parse_content_children(s, contentId, sectionId))
+        if (is.null(objQuizOut)) {
+          objOut$contents <- c(objOut$contents, parse_content_children(s, contentId, sectionId))
+        } else {
+          objOut$contents <- c(parse_content_children(s, contentId, sectionId), objOut$contents)
+        }
 
         json_out[[length(json_out) + 1]]  <- objOut
         sectionContents[[length(sectionContents) + 1]] <- list(
