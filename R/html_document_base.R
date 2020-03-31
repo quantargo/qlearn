@@ -98,6 +98,17 @@ html_document_base <-
         if (length(in_file) && file.exists(in_file)) {
           image_path_full <- file.path(image_prefix, src)
           img_src <- sub(src, image_path_full, img_src)
+
+          ext <- tolower(tools::file_ext(in_file))
+          FUN <- if (ext == "png") png::readPNG
+          else if (ext == "jpeg" || ext == "jpg") jpeg::readJPEG
+          else NULL
+
+          if (!is.null(ext)) {
+            imageDim <- dim(png::readPNG(in_file))
+            img_src <- paste(img_src, sprintf('width="%s" height="%s"',
+                                              imageDim[2], imageDim[1]))
+          }
         }
         img_src
       }

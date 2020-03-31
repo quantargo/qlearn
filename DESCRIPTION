@@ -19,7 +19,9 @@ Imports:
   rlang,
   reshape2,
   qbit,
-  learnr
+  learnr,
+  png,
+  jpeg
 RoxygenNote: 6.1.1
 Remotes:  
   quantargo/qbit,
