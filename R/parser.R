@@ -5,7 +5,7 @@ parse_exercise <- function(s, moduleId, contentId, section_title) {
   objExercise <- NULL
   nodes_exercise <- xml_find_all(s, ".//div[starts-with(@class, 'placeholder-exercise')]")
   if (length(nodes_exercise) > 0) {
-    stopifnot(length(nodes_exercise) == 1)
+    #stopifnot(length(nodes_exercise) == 1)
     e <- nodes_exercise[[1]]
     objExercise <- e %>%
       xml_text() %>%
@@ -49,7 +49,7 @@ parse_quiz <- function(s, moduleId, contentId, section_title, qid) {
 
   nodes_quizzes <- xml_find_all(s, ".//script[starts-with(@data-for, 'htmlwidget-')]")
   if (length(nodes_quizzes) > 0) {
-    stopifnot(length(nodes_quizzes) == 1)
+    #stopifnot(length(nodes_quizzes) == 1)
     q <- nodes_quizzes[[1]]
     objQuiz <- q %>%
       xml_text() %>%
@@ -91,7 +91,7 @@ parse_recipe <- function(s, moduleId, contentId, section_title) {
   nodes_recipe <- xml_find_all(s, ".//div[starts-with(@class, 'placeholder-recipe')]")
 
   if (length(nodes_recipe) > 0) {
-    stopifnot(length(nodes_recipe) == 1)
+    #stopifnot(length(nodes_recipe) == 1)
     e <- nodes_recipe[[1]]
 
     objRecipe <- e %>%
