@@ -21,7 +21,8 @@ Imports:
   qbit,
   learnr,
   png,
-  jpeg
+  jpeg,
+  magick
 RoxygenNote: 6.1.1
 Remotes:  
   quantargo/qbit,

@@ -102,10 +102,17 @@ html_document_base <-
           ext <- tolower(tools::file_ext(in_file))
           FUN <- if (ext == "png") png::readPNG
           else if (ext == "jpeg" || ext == "jpg") jpeg::readJPEG
+          else if (ext == "gif") magick::image_read
           else NULL
 
-          if (!is.null(ext)) {
-            imageDim <- dim(png::readPNG(in_file))
+          if (!is.null(FUN)) {
+            if (ext != "gif") {
+              imageDim <- dim(FUN(in_file))
+            }
+            else {
+              imageDim <- magick::image_info(FUN(in_file))[1, c("width", "height"), drop=TRUE]
+            }
+
             img_src <- paste(img_src, sprintf('width="%s" height="%s"',
                                               imageDim[2], imageDim[1]))
           }
