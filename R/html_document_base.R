@@ -211,6 +211,19 @@ html_document_base <-
                title = unbox(x$title))
         })
       )
+
+      for (n in names(metadata)) {
+        if (!n %in% names(objIndex)) {
+          objIndex[[n]] <- metadata[[n]]
+          if (n %in% c("author", "date", "slug", "image", "ogImage")) {
+            objIndex[[n]] <- unbox(objIndex[[n]])
+          }
+          if (n %in% "tutorial" && !is.null(objIndex[[n]]$tutorial$id)) {
+            objIndex[[n]]$tutorial$id <- unbox(objIndex[[n]]$tutorial$id)
+          }
+        }
+      }
+
       json_out[[length(json_out) + 1]]  <- objIndex
 
 
