@@ -58,7 +58,7 @@ parse_quiz <- function(s, moduleId, contentId, section_title, qid) {
     # Check if node is a valid quesiton
     if (is.null(objQuiz$x$answers)) {
       # node does not seem to be a quiz, skipping
-      next
+      return(NULL)
     }
 
     num_answers_correct <- which(objQuiz$x$answers$correct)

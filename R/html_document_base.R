@@ -100,17 +100,19 @@ html_document_base <-
           img_src <- sub(src, image_path_full, img_src)
 
           ext <- tolower(tools::file_ext(in_file))
-          FUN <- if (ext == "png") png::readPNG
-          else if (ext == "jpeg" || ext == "jpg") jpeg::readJPEG
-          else if (ext == "gif") magick::image_read
-          else NULL
+          IMG <- tryCatch({
+            if (ext == "png") png::readPNG(in_file)
+            else if (ext == "jpeg" || ext == "jpg") jpeg::readJPEG(in_file)
+            else if (ext == "gif") magick::image_read(in_file)
+            else NULL
+          }, error = function(e) NULL)
 
-          if (!is.null(FUN)) {
+          if (!is.null(IMG)) {
             if (ext != "gif") {
-              imageDim <- dim(FUN(in_file))
+              imageDim <- dim(IMG)
             }
             else {
-              imageDim <- magick::image_info(FUN(in_file))[1, c("width", "height"), drop=TRUE]
+              imageDim <- magick::image_info(IMG)[1, c("width", "height"), drop=TRUE]
             }
 
             img_src <- paste(img_src, sprintf('width="%s" height="%s"',
@@ -213,13 +215,15 @@ html_document_base <-
       )
 
       for (n in names(metadata)) {
-        if (!n %in% names(objIndex)) {
+        if ((!n %in% names(objIndex)) &&
+            (!n %in% c("output", "tutorial", "runtime"))) {
           objIndex[[n]] <- metadata[[n]]
-          if (n %in% c("author", "date", "slug", "image", "ogImage")) {
+          if (n %in% c("author", "date", "slug", "image", "ogImage", "runtime")) {
             objIndex[[n]] <- unbox(objIndex[[n]])
           }
           if (n %in% "tutorial" && !is.null(objIndex[[n]]$tutorial$id)) {
             objIndex[[n]]$tutorial$id <- unbox(objIndex[[n]]$tutorial$id)
+            objIndex[[n]]$tutorial$version <- NULL
           }
         }
       }
