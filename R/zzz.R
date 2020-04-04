@@ -9,6 +9,7 @@
   } else {
     options(ASSETS_URL = assets_url)
   }
+  options(width=69)
 }
 
 # remove knitr hooks when package is detached from search path
