@@ -72,6 +72,8 @@ parse_quiz <- function(s, moduleId, contentId, section_title, qid) {
       answers = objQuiz$x$answers
     )
 
+    objQuizOut$answers$answerId <- paste0(objQuizOut$contentId, "#answer-", rownames(objQuizOut$answers))
+
     if (nchar(objQuiz$x$question) > 0) {
       objQuizOut$contents <- list(list(
         type = unbox("html"),
