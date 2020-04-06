@@ -180,6 +180,13 @@ html_document_base <-
           objOut$contents <- c(parse_content_children(s, contentId, sectionId), objOut$contents)
         }
 
+        if (!is.null(objRecipeOut)) {
+          filterContent <- sapply(objOut$contents, function(x) x$content == "")
+          if (any(filterContent)) {
+            objOut$contents <- objOut$contents[!filterContent]
+          }
+        }
+
         json_out[[length(json_out) + 1]]  <- objOut
         sectionContents[[length(sectionContents) + 1]] <- list(
           type = unbox("contentId"),
