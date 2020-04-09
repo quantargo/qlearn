@@ -100,11 +100,16 @@ parse_recipe <- function(s, moduleId, contentId, section_title) {
       xml_text() %>%
       jsonlite::unserializeJSON()
 
+    if (objRecipe$contentType != "recipe") {
+      objRecipe$contentType <- "section"
+      contentId <- paste(contentId, sectionId, sep = "#")
+    } else {
+      contentId <- paste(contentId, "recipe", sep = "#")
+    }
 
-    objRecipe$contentType <- if (objRecipe$contentType != "recipe") "section" else "recipe"
     elem <- list(
       moduleId = unbox(moduleId),
-      contentId = unbox(paste(contentId, sub("^section-", sprintf("%s-", objRecipe$contentType), sectionId), sep = "#")),
+      contentId = unbox(contentId),
       title = unbox(section_title),
       contentType = unbox(objRecipe$contentType),
 
