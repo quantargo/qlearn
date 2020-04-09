@@ -202,6 +202,11 @@ html_document_base <-
 
       ## Add contentIds if recipe is present
       if (length(recipeIdx) == 1) {
+        exercise_indices <- (ctypes == "exercise")
+        json_out[[recipeIdx]]$dependencies <- sapply(json_out[exercise_indices],
+                                                 function(x) x$contentId)
+
+
         includeRecipe <- sapply(json_out, function(x) !is.null(x$includeRecipe) && x$includeRecipe)
         example_indices <- (ctypes == "exercise") & includeRecipe
         json_out[[recipeIdx]]$examples <- sapply(json_out[example_indices],
