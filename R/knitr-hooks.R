@@ -103,7 +103,7 @@ install_knitr_hooks <- function() {
         if (length(hints) > 0) {
           engines <- sapply(related_chunks[grep("hint", names(related_chunks))],
                             function(x) attr(x, "chunk_opts")$engine)
-          type <- ifelse(engines == "r", "code-input", "html")
+          type <- ifelse(engines == "html", "html", "code-input")
           hints <- data.frame(label = names(hints), type = type, content = hints)
         } else {
           hints <- NULL
