@@ -244,8 +244,26 @@ html_document_base <-
         }
       }
 
-      json_out[[length(json_out) + 1]]  <- objIndex
+      files_rmd_all <- list.files(pattern = "*.Rmd$")
 
+      if (startsWith(objIndex$moduleId, "course")) {
+        chapterId <- tail(strsplit(objIndex$contentId, "#")[[1]], 1)
+        idx_doing <- as.integer(strsplit(chapterId, '-')[[1]][1])
+        file_out <- sprintf("%s.png", chapterId)
+
+        sub("#", "/", metadata$tutorial$id, fixed = TRUE)
+
+        img_path <- gsub('#', '/', objIndex$contentId, fixed = TRUE)
+        progress_image_url <- file.path(options("ASSETS_URL"), paste0(img_path, ".png"))
+
+        progress_image(objIndex$title,
+                       idx_doing = idx_doing,
+                       idx_total = length(files_rmd_all),
+                       file_out = sprintf("%s.png", chapterId))
+        objIndex$ogImage <- progress_image_url
+      }
+
+      json_out[[length(json_out) + 1]]  <- objIndex
 
       #rmarkdown:::write_utf8(output_str, output_file)
       output_file_json <- sub("\\.html$", "\\.json", output_file)

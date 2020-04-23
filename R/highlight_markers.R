@@ -15,7 +15,6 @@ highlight_markers_extract <- function(code,
                                       highlight_end = "_@",
                                       highlight_line = "@@") {
 
-  browser()
   range_start <- str_locate_all(code, highlight_start)
   range_end <- str_locate_all(code, highlight_end)
   range_all <- str_locate(code, highlight_line)
