@@ -178,7 +178,7 @@ html_document_base <-
           )
         }
 
-        if (is.null(objQuizOut)) {
+        if (is.null(objQuizOut) && is.null(objRecipeOut)) {
           objOut$contents <- c(objOut$contents, parse_content_children(s, contentId, sectionId))
         } else {
           objOut$contents <- c(parse_content_children(s, contentId, sectionId), objOut$contents)
