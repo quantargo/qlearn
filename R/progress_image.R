@@ -52,7 +52,7 @@ progress_image <- function(title,
   progress[1:idx_doing] <- pmax(progress[1:idx_doing], 1)
 
   offset_x <- 345
-  offset_y <- max(offset_ti_y + 20, 400)
+  offset_y <- max(offset_ti_y + 20, 350)
   gap_x <- 101
 
   for (p in progress) {
