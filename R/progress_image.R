@@ -1,6 +1,6 @@
 #' Create Progress image for chapter
 #'
-#' @importFrom magick image_read image_annotate image_composite image_write image_read_svg image_scale
+#' @importFrom magick image_read image_annotate image_composite image_write image_read_svg image_scale image_info
 #' @importFrom  magrittr "%>%"
 #' @importFrom stringr str_locate_all str_trim str_sub
 #' @examples
@@ -18,7 +18,9 @@ progress_image <- function(title,
   img_badge <- image_read_svg(file_badge)
 
   img_bg = image_read(system.file("Recipe_1_background.png", package = "qlearn", mustWork = TRUE))
+  img_bg_height <- image_info(img_bg)[1, c("height"), drop=TRUE]
   img_progress_doing <- image_read(system.file("Recipe-progress-indicator-doing.png", package = "qlearn", mustWork = TRUE))
+  img_progress_doing_height <- image_info(img_progress_doing)[1, c("height"), drop=TRUE]
   img_progress_done <- image_read(system.file("Recipe-progress-indicator-done.png", package = "qlearn", mustWork = TRUE))
   img_progress_not_done <- image_read(system.file("Recipe-progress-indicator-not-done.png", package = "qlearn", mustWork = TRUE))
 
@@ -33,8 +35,14 @@ progress_image <- function(title,
     title <- str_trim(str_sub(title, c(1, split), c(split, nchar(title))))
   }
 
-  offset_ti_y <- 220
   font_size <- 65
+  line_gap <- 5
+  progress_gap <- 20
+
+  block_middle_height <- length(title) * (font_size + line_gap) +
+    progress_gap + img_progress_doing_height
+
+  offset_ti_y <- (img_bg_height - block_middle_height) / 2
 
   for (ti in title) {
     offset_ti <- sprintf("+345+%d", offset_ti_y)
@@ -44,7 +52,7 @@ progress_image <- function(title,
                    size = font_size,
                    weight = 700,
                    location = offset_ti)
-    offset_ti_y <- offset_ti_y + font_size + 5
+    offset_ti_y <- offset_ti_y + font_size + line_gap
   }
 
   progress <- rep(0, idx_total)
@@ -52,7 +60,7 @@ progress_image <- function(title,
   progress[1:idx_doing] <- pmax(progress[1:idx_doing], 1)
 
   offset_x <- 345
-  offset_y <- max(offset_ti_y + 20, 350)
+  offset_y <- offset_ti_y + progress_gap
   gap_x <- 101
 
   for (p in progress) {
