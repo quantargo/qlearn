@@ -4,8 +4,14 @@
 \alias{progress_image}
 \title{Create Progress image for chapter}
 \usage{
-progress_image(title, idx_doing, idx_total, file_out, line_max_char = 24,
-  file_badge = "badge.svg")
+progress_image(
+  title,
+  idx_doing,
+  idx_total,
+  file_out,
+  line_max_char = 24,
+  file_badge = "badge.svg"
+)
 }
 \description{
 Create Progress image for chapter

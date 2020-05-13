@@ -148,6 +148,7 @@ html_document_base <-
 
       qid <- 1
       json_out <- list()
+      qbit_out <- list()
 
       # Extract exercises from content and replace with placeholders
       for (s in sections) {
@@ -160,16 +161,52 @@ html_document_base <-
         objQuizOut <- parse_quiz(s, moduleId, contentId, section_title, qid)
         objRecipeOut <- parse_recipe(s, moduleId, contentId, section_title)
         objOut <- NULL
+        sectionId <- s %>% xml_attr("id")
 
         if (!is.null(objExercise)) {
           objOut  <- objExercise
+          # Generate Qbit
+          qbitName <- sprintf("qbit-%s", paste(contentId, sectionId, sep = "#"))
+          tstamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%OS3Z", tz = "UTC")
+          code <- sprintf("%s\n", paste(
+                    paste("library(%s)", objOut$packagesLoaded, collapse = "\n"),
+                    objOut$setup,
+                    objOut$solution, collapse = "\n\n"))
+
+          qbitOut <- list(
+            contentId = unbox(qbitName),
+            contentType = unbox("main"),
+            createdBy = unbox("SYSTEM"),
+            description = unbox(sectionId),
+            lastModified = unbox(tstamp),
+            moduleId = unbox(qbitName),
+            moduleType = unbox("qbit"),
+            title = unbox(objOut$title),
+            visibility = unbox("public"),
+            code = unbox(code),
+            qbitName = unbox(code)
+          )
+          qbit_out[[length(qbit_out) + 1]]  <- qbitOut
+
+          dependencies <- c('askpass-1.1', 'assertthat-0.2.1', 'aws.s3-0.3.20', 'aws.signature-0.5.2', 'backports-1.1.5', 'base64enc-0.1-3', 'BiocManager-1.30.10', 'callr-3.4.2', 'carData-3.0-3', 'checkmate-2.0.0', 'cli-2.0.1', 'coda-0.19-3', 'colorspace-1.4-1', 'crayon-1.3.4', 'curl-4.3', 'desc-1.2.0', 'digest-0.6.25', 'dplyr-0.8.4', 'ellipsis-0.3.0', 'evaluate-0.14', 'fansi-0.4.1', 'farver-2.0.3', 'gapminder-0.3.0', 'GGally-1.4.0', 'ggimage-0.2.7', 'ggplot2-3.2.1', 'ggplotify-0.0.4', 'glue-1.3.1', 'gradethis-0.1.0.9002', 'gridExtra-2.3', 'gridGraphics-0.4-1', 'gtable-0.3.0', 'hexbin-1.28.1', 'hexSticker-0.4.6', 'hms-0.5.3', 'httr-1.4.1', 'jsonlite-1.6.1', 'labeling-0.3', 'lattice-0.20-40', 'lazyeval-0.2.2', 'lifecycle-0.1.0', 'lubridate-1.7.4', 'magick-2.3', 'magrittr-1.5', 'markdown-1.1', 'MASS-7.3-51.5', 'Matrix-1.2-18', 'mgcv-1.8-31', 'mime-0.9', 'munsell-0.5.0', 'network-1.16.0', 'nlme-3.1-144', 'openssl-1.4.1', 'pillar-1.4.3', 'pkgbuild-1.0.6', 'pkgconfig-2.0.3', 'pkgload-1.0.2', 'plyr-1.8.5', 'politicaldata-0.1.3', 'praise-1.0.0', 'prettyunits-1.1.1', 'primes-0.1.0', 'processx-3.4.2', 'progress-1.2.2', 'ps-1.3.2', 'purrr-0.3.3', 'R6-2.4.1', 'RColorBrewer-1.1-2', 'Rcpp-1.0.3', 'reshape-0.8.8', 'reshape2-1.4.3', 'rlang-0.4.4', 'rprojroot-1.3-2', 'rstudioapi-0.11', 'rvcheck-0.1.7', 'rvest-0.3.5', 'scales-1.1.0', 'selectr-0.4-2', 'showtext-0.7-1', 'showtextdb-2.0', 'sna-2.5', 'Stat2Data-2.0.0', 'statnet.common-4.3.0', 'stringdist-0.9.5.5', 'stringi-1.4.6', 'stringr-1.4.0', 'sys-3.3', 'sysfonts-0.8', 'testthat-2.3.1', 'testwhat-4.11.1', 'tibble-2.1.3', 'tidyselect-1.0.0', 'utf8-1.1.4', 'uuid-0.1-2', 'vctrs-0.2.3', 'viridisLite-0.3.0', 'withr-2.1.2', 'xfun-0.12', 'XML-3.99-0.3', 'xml2-1.2.2', 'zoo-1.8-7')
+          for (dep in dependencies) {
+            moduleId <- "package-amazonlinux-2018.03-r-4.0.0"
+            depTo <- sprintf("%s#cran#%s", moduleId, dep)
+            depOut <- list(
+              contentId = unbox(sprintf("%s_dependency_%s", qbitName, depTo)),
+              contentType = unbox("dependency"),
+              dependencyFrom = unbox(qbitName),
+              dependencyTo = unbox(depTo),
+              moduleId = unbox(moduleId)
+            )
+            qbit_out[[length(qbit_out) + 1]]  <- depOut
+          }
         } else if (!is.null(objQuizOut)) {
           qid <- qid + 1
           objOut  <- objQuizOut
         } else if (!is.null(objRecipeOut)) {
           objOut  <- objRecipeOut
         } else {
-          sectionId <- s %>% xml_attr("id")
           objOut <- list(
             moduleId = unbox(moduleId),
             contentId = unbox(paste(contentId, sectionId, sep = "#")),
@@ -268,7 +305,7 @@ html_document_base <-
 
       #rmarkdown:::write_utf8(output_str, output_file)
       output_file_json <- sub("\\.html$", "\\.json", output_file)
-      jsonlite::write_json(json_out, output_file_json, auto_unbox = FALSE)
+      jsonlite::write_json(c(json_out, qbit_out), output_file_json, auto_unbox = FALSE)
 
       output_file_json
     }

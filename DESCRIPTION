@@ -24,7 +24,7 @@ Imports:
   jpeg,
   magick,
   rsvg
-RoxygenNote: 6.1.1
-Remotes:  
+RoxygenNote: 7.1.0
+Remotes: 
   quantargo/qbit,
   quantargo/learnr
