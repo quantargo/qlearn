@@ -184,7 +184,7 @@ html_document_base <-
             title = unbox(objOut$title),
             visibility = unbox("public"),
             code = unbox(code),
-            qbitName = unbox(code)
+            qbitName = unbox(objExercise$qbitName)
           )
           qbit_out[[length(qbit_out) + 1]]  <- qbitOut
 
@@ -197,7 +197,7 @@ html_document_base <-
               contentType = unbox("dependency"),
               dependencyFrom = unbox(qbitName),
               dependencyTo = unbox(depTo),
-              moduleId = unbox(moduleId)
+              moduleId = unbox(qbitName)
             )
             qbit_out[[length(qbit_out) + 1]]  <- depOut
           }
