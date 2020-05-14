@@ -169,10 +169,13 @@ html_document_base <-
           qbitName <- sprintf("qbit-%s", paste(contentId, sectionId, sep = "#"))
           qbitModuleId <- sprintf("qbit-%s", moduleId)
           tstamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%OS3Z", tz = "UTC")
-          code <- sprintf("%s\n", paste(
-                    paste("library(%s)", objOut$packagesLoaded, collapse = "\n"),
-                    objOut$setup,
-                    objOut$solution, collapse = "\n\n"))
+
+          code <-
+            trimws(paste(c(sprintf("library(%s)", objOut$packagesLoaded),
+                "",
+                objOut$setup,
+                objOut$solution,
+                ""), collapse = "\n"), "left")
 
           qbitOut <- list(
             contentId = unbox(qbitName),
