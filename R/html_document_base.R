@@ -178,6 +178,7 @@ html_document_base <-
                 objOut$solution,
                 ""), collapse = "\n"), "left")
 
+          qbitTitle <- sub("^Exercise:?\\s+", "", objOut$title)
           qbitOut <- list(
             contentId = unbox(qbitName),
             contentType = unbox("main"),
@@ -186,7 +187,7 @@ html_document_base <-
             lastModified = unbox(tstamp),
             moduleId = unbox(qbitModuleId),
             moduleType = unbox("qbit"),
-            title = unbox(objOut$title),
+            title = unbox(qbitTitle),
             visibility = unbox("public"),
             code = unbox(code),
             qbitName = unbox(objExercise$qbitName)
