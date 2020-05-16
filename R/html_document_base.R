@@ -167,10 +167,7 @@ html_document_base <-
         if (!is.null(objExercise)) {
           objOut  <- objExercise
           # Generate Qbit
-          qbitName <- sprintf("qbit-%s", paste(contentId, sectionId, sep = "#"))
-
           tstamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%OS3Z", tz = "UTC")
-
           code <-
             trimws(paste(c(sprintf("library(%s)", objOut$packagesLoaded),
                 "",
@@ -179,8 +176,9 @@ html_document_base <-
                 ""), collapse = "\n"), "left")
 
           qbitTitle <- sub("^Exercise:?\\s+", "", objOut$title)
+          qbitContentId <- paste("qbit", objOut$contentId, sep = "-")
           qbitOut <- list(
-            contentId = unbox(qbitName),
+            contentId = unbox(qbitContentId),
             contentType = unbox("main"),
             createdBy = unbox("SYSTEM"),
             description = unbox(sectionId),
