@@ -177,6 +177,7 @@ html_document_base <-
 
           qbitTitle <- sub("^Exercise:?\\s+", "", objOut$title)
           qbitContentId <- paste("qbit", objOut$contentId, sep = "-")
+
           qbitOut <- list(
             contentId = unbox(qbitContentId),
             contentType = unbox("main"),
@@ -190,7 +191,30 @@ html_document_base <-
             code = unbox(code),
             qbitName = unbox(objExercise$qbitName)
           )
+
+          ## Generate Qbit image
+          qbit_img_path <- file.path( gsub("#", "/", qbitContentId), "image.png")
+          file_qbit_img <- file.path("..", qbit_img_path)
+          dir.create(dirname(file_qbit_img), recursive = TRUE, showWarnings = FALSE)
+          decode_dev <- sprintf("png(\"%s\")\nprint({%s})\ndev.off()", file_qbit_img, code)
+          eval(parse(text = decode_dev), new.env())
+          if (!file.exists(file_qbit_img)) {
+            highlight_code_image(code, file_qbit_img)
+          }
+          qbitOut$image <- unbox(qbit_img_path)
           qbit_out[[length(qbit_out) + 1]]  <- qbitOut
+
+          if (!is.null(objExercise$advertiseQBit)) {
+            qbitAdvertiseOut <- list(
+              contentId = unbox(sprintf("advertise_%s", qbitContentId)),
+              moduleId = unbox(qbitModuleId),
+              contentType = unbox("main"),
+              createdBy = unbox("SYSTEM"),
+              lastModified = unbox(tstamp)
+            )
+            qbit_out[[length(qbit_out) + 1]]  <- qbitAdvertiseOut
+          }
+
         } else if (!is.null(objQuizOut)) {
           qid <- qid + 1
           objOut  <- objQuizOut

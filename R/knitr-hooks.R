@@ -122,6 +122,14 @@ install_knitr_hooks <- function() {
           packages_loaded <- names(sessionInfo()$otherPkgs)
           packages_loaded <- packages_loaded[!packages_loaded %in% c("shiny", "qlearn", "learnr", "testwhat")]
         }
+        advertiseQBit <- NULL
+        if ("advertiseQBit" %in% names(options)){
+          advertiseQBit <- options$advertiseQBit
+        }
+        useImage <- NULL
+        if ("useImage" %in% names(options)){
+          useImage <- options$useImage
+        }
 
         exObj <- list(
           contentId = options$label,
@@ -152,6 +160,12 @@ install_knitr_hooks <- function() {
         }
         if(!is.null(options$includeRecipe)) {
           exObj$includeRecipe <- TRUE
+        }
+        if(!is.null(options$advertiseQBit)) {
+          exObj$advertiseQBit <- advertiseQBit
+        }
+        if(!is.null(options$useImage)) {
+          exObj$useImage <- useImage
         }
 
         #attributes(exObj$hints) <- NULL

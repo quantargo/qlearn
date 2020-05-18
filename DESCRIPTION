@@ -23,7 +23,9 @@ Imports:
   png,
   jpeg,
   magick,
-  rsvg
+  rsvg,
+  webshot,
+  highr
 RoxygenNote: 7.1.0
 Remotes: 
   quantargo/qbit,
