@@ -162,7 +162,7 @@ install_knitr_hooks <- function() {
           exObj$includeRecipe <- TRUE
         }
         if(!is.null(options$advertiseQBit)) {
-          exObj$advertiseQBit <- advertiseQBit
+          exObj$advertiseQBit <- unbox(advertiseQBit)
         }
         if(!is.null(options$useImage)) {
           exObj$useImage <- useImage
