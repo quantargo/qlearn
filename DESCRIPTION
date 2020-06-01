@@ -29,4 +29,5 @@ Imports:
 RoxygenNote: 7.1.0
 Remotes: 
   quantargo/qbit,
-  quantargo/learnr
+  quantargo/learnr,
+  rstudio/rmarkdown@220cb43
