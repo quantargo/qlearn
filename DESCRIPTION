@@ -28,3 +28,5 @@ Imports:
   htmlwidgets,
   markdown
 RoxygenNote: 7.1.0
+Remotes: 
+  rstudio/rmarkdown@220cb43
