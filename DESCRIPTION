@@ -28,6 +28,3 @@ Imports:
   htmlwidgets,
   markdown
 RoxygenNote: 7.1.0
-Remotes: 
-  quantargo/qbit,
-  rstudio/rmarkdown@220cb43
