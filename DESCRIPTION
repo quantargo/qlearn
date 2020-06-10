@@ -18,16 +18,16 @@ Imports:
   magrittr,
   rlang,
   reshape2,
-  qbit,
   learnr,
   png,
   jpeg,
   magick,
-  rsvg,
   webshot,
-  highr
+  highr,
+  stringr,
+  htmlwidgets,
+  markdown
 RoxygenNote: 7.1.0
 Remotes: 
   quantargo/qbit,
-  quantargo/learnr,
   rstudio/rmarkdown@220cb43

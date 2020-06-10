@@ -10,6 +10,9 @@
     options(ASSETS_URL = assets_url)
   }
   options(width=69)
+
+  assign("question", qlearn::question, envir = .GlobalEnv)
+  assign("answer", qlearn::answer, envir = .GlobalEnv)
 }
 
 # remove knitr hooks when package is detached from search path

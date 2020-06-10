@@ -62,6 +62,9 @@ parse_quiz <- function(s, moduleId, contentId, section_title, qid) {
     }
 
     num_answers_correct <- which(objQuiz$x$answers$correct)
+    objQuiz$x$answers$id <- NULL
+    objQuiz$x$answers$value <- NULL
+    objQuiz$x$answers$label <- NULL
 
     objQuizOut <- list(
       moduleId = unbox(moduleId),
