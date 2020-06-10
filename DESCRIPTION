@@ -26,7 +26,8 @@ Imports:
   highr,
   stringr,
   htmlwidgets,
-  markdown
+  markdown,
+  rsvg
 RoxygenNote: 7.1.0
 Remotes: 
   rstudio/rmarkdown@220cb43
