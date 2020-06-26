@@ -188,7 +188,6 @@ html_document_base <-
             moduleType = unbox("qbit"),
             title = unbox(qbitTitle),
             visibility = unbox("public"),
-            code = unbox(code),
             qbitName = unbox(objExercise$qbitName)
           )
 
@@ -203,6 +202,15 @@ html_document_base <-
           }
           qbitOut$image <- unbox(qbit_img_path)
           qbit_out[[length(qbit_out) + 1]]  <- qbitOut
+
+          qbitCodeOut <- list(
+            contentId = unbox(paste0(qbitContentId, "#files#main.R")),
+            moduleId = unbox(qbitModuleId),
+            content = unbox(code),
+            contentType = unbox("file"),
+            name = "main.R"
+          )
+          qbit_out[[length(qbit_out) + 1]]  <- qbitCodeOut
 
           if (!is.null(objExercise$advertiseQBit)) {
             qbitAdvertiseOut <- list(
