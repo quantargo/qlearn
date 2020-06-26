@@ -208,7 +208,7 @@ html_document_base <-
             moduleId = unbox(qbitModuleId),
             content = unbox(code),
             contentType = unbox("file"),
-            name = "main.R"
+            name = unbox("main.R")
           )
           qbit_out[[length(qbit_out) + 1]]  <- qbitCodeOut
 
