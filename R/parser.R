@@ -15,13 +15,16 @@ parse_exercise <- function(s, moduleId, contentId, section_title) {
     objExercise$contentId <- paste(contentId, objExercise$contentId, sep = "#")
 
     qbitName <- sprintf("qbit-%s", moduleId)
-    if (options("STAGE") == "dev") {
-      qbitName <- sprintf("%s-dev", qbitName)
-    }
-
     objExercise$qbitName <- qbitName
+
+    qbitRuntime <- "runtime-amazonlinux-201803-r-400"
+    if (options("STAGE") == "dev") {
+      qbitRuntime <- sprintf("%s-dev", qbitRuntime)
+    }
+    objExercise$qbitRuntime <- qbitRuntime
+
     objExercise$title <- section_title
-    attributes_unbox <- c("contentId", "qbitName", "contentType", "exerciseType", "solution", "title", "template", "hintsAll", "includeRecipe", "setup")
+    attributes_unbox <- c("contentId", "qbitName", "qbitRuntime", "contentType", "exerciseType", "solution", "title", "template", "hintsAll", "includeRecipe", "setup")
     attributes_unbox <- attributes_unbox[attributes_unbox %in% names(objExercise)]
     for (a in attributes_unbox) {
       objExercise[[a]] <- unbox(objExercise[[a]])

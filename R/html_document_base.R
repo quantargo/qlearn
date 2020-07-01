@@ -188,7 +188,8 @@ html_document_base <-
             moduleType = unbox("qbit"),
             title = unbox(qbitTitle),
             visibility = unbox("public"),
-            qbitName = unbox(objExercise$qbitName)
+            qbitName = unbox(objExercise$qbitName),
+            qbitRuntime = unbox(objExercise$qbitRuntime)
           )
 
           ## Generate Qbit image
