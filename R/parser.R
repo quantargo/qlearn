@@ -17,10 +17,7 @@ parse_exercise <- function(s, moduleId, contentId, section_title) {
     qbitName <- sprintf("qbit-%s", moduleId)
     objExercise$qbitName <- qbitName
 
-    qbitRuntime <- "runtime-amazonlinux-201803-r-400"
-    if (options("STAGE") == "dev") {
-      qbitRuntime <- sprintf("%s-dev", qbitRuntime)
-    }
+    qbitRuntime <- paste(qbitName, options("STAGE"), sep="-")
     objExercise$qbitRuntime <- qbitRuntime
 
     objExercise$title <- section_title
