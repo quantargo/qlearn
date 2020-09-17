@@ -18,7 +18,7 @@ qlearn <- function(toc = FALSE, toc_depth = 3, toc_float = FALSE, number_section
   if (section_divs)
     args <- c(args, "--section-divs")
   args <- c(args, pandoc_toc_args(toc, toc_depth))
-  md_extensions <- rmarkdown:::smart_extension(smart, md_extensions)
+  #md_extensions <- rmarkdown:::smart_extension(smart, md_extensions)
   if (toc && !identical(toc_float, FALSE)) {
     if (is.null(theme))
       stop("You must use a theme when specifying the 'toc_float' option")
