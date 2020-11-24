@@ -295,7 +295,7 @@ html_document_base <-
         if ((!n %in% names(objIndex)) &&
             (!n %in% c("output", "tutorial", "runtime"))) {
           objIndex[[n]] <- metadata[[n]]
-          if (n %in% c("author", "date", "slug", "image", "ogImage", "runtime")) {
+          if (n %in% c("author", "date", "slug", "image", "ogImage", "runtime", "usagePlan")) {
             objIndex[[n]] <- unbox(objIndex[[n]])
           }
           if (n %in% "tutorial" && !is.null(objIndex[[n]]$tutorial$id)) {
