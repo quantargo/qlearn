@@ -197,7 +197,7 @@ html_document_base <-
           file_qbit_img <- file.path("..", qbit_img_path)
           dir.create(dirname(file_qbit_img), recursive = TRUE, showWarnings = FALSE)
           decode_dev <- sprintf("png(\"%s\")\nprint({%s})\ndev.off()", file_qbit_img, code)
-          eval(parse(text = decode_dev), new.env())
+          # eval(parse(text = decode_dev), new.env())
           if (!file.exists(file_qbit_img)) {
             highlight_code_image(code, file_qbit_img)
           }
