@@ -150,6 +150,7 @@ html_document_base <-
       qid <- 1
       json_out <- list()
       qbit_out <- list()
+      pkgLock <- jsonlite::read_json("../renv.lock")
 
       # Extract exercises from content and replace with placeholders
       for (s in sections) {
@@ -212,6 +213,15 @@ html_document_base <-
             name = unbox("main.R")
           )
           qbit_out[[length(qbit_out) + 1]]  <- qbitCodeOut
+
+          qbitPackagesOut <- list(
+            contentId = unbox(paste0(qbitContentId, "#packages")),
+            moduleId = unbox(qbitModuleId),
+            contentType = unbox("content"),
+            packageLock = pkgLock,
+            packagesLoaded = objExercise$packagesLoaded
+          )
+          qbit_out[[length(qbit_out) + 1]]  <- qbitPackagesOut
 
           if (!is.null(objExercise$advertiseQBit)) {
             qbitAdvertiseOut <- list(
