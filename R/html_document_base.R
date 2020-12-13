@@ -170,12 +170,12 @@ html_document_base <-
           objOut  <- objExercise
           # Generate Qbit
           tstamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%OS3Z", tz = "UTC")
-          code <-
-            trimws(paste(c(sprintf("library(%s)", objOut$packagesLoaded),
-                "",
-                objOut$setup,
-                objOut$solution,
-                ""), collapse = "\n"), "left")
+          code <- objOut$solution
+            # trimws(paste(c(sprintf("library(%s)", objOut$packagesLoaded),
+            #     "",
+            #     objOut$setup,
+            #     objOut$solution,
+            #     ""), collapse = "\n"), "left")
 
           qbitTitle <- sub("^Exercise:?\\s+", "", objOut$title)
           qbitContentId <- paste("qbit", objOut$contentId, sep = "-")
@@ -205,6 +205,28 @@ html_document_base <-
           }
           qbitOut$image <- unbox(qbit_img_path)
           qbit_out[[length(qbit_out) + 1]]  <- qbitOut
+
+          ## Generate Setup environment file
+          currtime <- unbox(format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3Z", tz = "UTC"))
+          qbitEnvironmentOut <- list(
+            contentId = unbox(paste0(qbitContentId, "#environment")),
+            contentType = unbox("environment"),
+            createdAt = currtime,
+            lastModified = currtime,
+            moduleId = unbox(qbitModuleId)
+          )
+
+          if (!is.null(objExercise$setup)) {
+            setup_env <- new.env()
+            eval(parse(text = objExercise$setup), envir = setup_env)
+            qbit_env_path = file.path("..", file.path( gsub("#", "/", qbitContentId), ".RData"))
+            dir.create(dirname(qbit_env_path), recursive = TRUE, showWarnings = FALSE)
+            save(list = ls(envir = setup_env), file = qbit_env_path, envir = setup_env)
+            qbitEnvironmentOut$environment <-
+              lapply(names(setup_env), function(x) capture.output(str(get(x, envir = setup_env))))
+            names(qbitEnvironmentOut$environment) <- names(setup_env)
+          }
+          qbit_out[[length(qbit_out) + 1]]  <- qbitEnvironmentOut
 
           qbitCodeOut <- list(
             contentId = unbox(paste0(qbitContentId, "#files#main.R")),
