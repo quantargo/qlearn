@@ -151,6 +151,7 @@ html_document_base <-
       json_out <- list()
       qbit_out <- list()
       pkgLock <- jsonlite::read_json("../renv.lock")
+      pkgLock$Packages <- lapply(pkgLock$Packages, function(x) lapply(x, function(y) unbox(y)))
 
       # Extract exercises from content and replace with placeholders
       for (s in sections) {
