@@ -1,6 +1,7 @@
 #' @import xml2
 #' @import jsonlite
 #' @importFrom magrittr "%>%"
+#' @importFrom qbit create_qbit_metadata
 html_document_base <-
   function (smart = TRUE, theme = NULL, self_contained = FALSE,
             lib_dir = NULL, mathjax = "default", pandoc_args = NULL,
@@ -169,93 +170,29 @@ html_document_base <-
         if (!is.null(objExercise)) {
           objOut  <- objExercise
           # Generate Qbit
-          tstamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%OS3Z", tz = "UTC")
-          code <- objOut$solution
-            # trimws(paste(c(sprintf("library(%s)", objOut$packagesLoaded),
-            #     "",
-            #     objOut$setup,
-            #     objOut$solution,
-            #     ""), collapse = "\n"), "left")
 
+          code <- objOut$solution
           qbitTitle <- sub("^Exercise:?\\s+", "", objOut$title)
           qbitContentId <- paste("qbit", objOut$contentId, sep = "-")
-
-          qbitOut <- list(
-            contentId = unbox(qbitContentId),
-            contentType = unbox("main"),
-            createdBy = unbox("SYSTEM"),
-            description = unbox(sectionId),
-            lastModified = unbox(tstamp),
-            moduleId = unbox(qbitModuleId),
-            moduleType = unbox("qbit"),
-            title = unbox(qbitTitle),
-            visibility = unbox("public"),
-            qbitName = unbox(objExercise$qbitName),
-            qbitRuntime = unbox(objExercise$qbitRuntime)
-          )
-
-          ## Generate Qbit image
-          qbit_img_path <- file.path( gsub("#", "/", qbitContentId), "image.png")
-          file_qbit_img <- file.path("..", qbit_img_path)
-          dir.create(dirname(file_qbit_img), recursive = TRUE, showWarnings = FALSE)
-          decode_dev <- sprintf("png(\"%s\")\nprint({%s})\ndev.off()", file_qbit_img, code)
-          # eval(parse(text = decode_dev), new.env())
-          if (!file.exists(file_qbit_img)) {
-            highlight_code_image(code, file_qbit_img)
-          }
-          qbitOut$image <- unbox(qbit_img_path)
-          qbit_out[[length(qbit_out) + 1]]  <- qbitOut
-
-          ## Generate Setup environment file
-          currtime <- unbox(format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3Z", tz = "UTC"))
-          qbitEnvironmentOut <- list(
-            contentId = unbox(paste0(qbitContentId, "#environment")),
-            contentType = unbox("environment"),
-            createdAt = currtime,
-            lastModified = currtime,
-            moduleId = unbox(qbitModuleId)
-          )
-
+          qbit_env <- NULL
+          setup_env <- NULL
           if (!is.null(objExercise$setup)) {
             setup_env <- new.env()
             eval(parse(text = objExercise$setup), envir = setup_env)
-            qbit_env_path = file.path("..", file.path( gsub("#", "/", qbitContentId), ".RData"))
-            dir.create(dirname(qbit_env_path), recursive = TRUE, showWarnings = FALSE)
-            save(list = ls(envir = setup_env), file = qbit_env_path, envir = setup_env)
-            qbitEnvironmentOut$environment <-
-              lapply(names(setup_env), function(x) capture.output(str(get(x, envir = setup_env))))
-            names(qbitEnvironmentOut$environment) <- names(setup_env)
           }
-          qbit_out[[length(qbit_out) + 1]]  <- qbitEnvironmentOut
 
-          qbitCodeOut <- list(
-            contentId = unbox(paste0(qbitContentId, "#files#main.R")),
-            moduleId = unbox(qbitModuleId),
-            content = unbox(code),
-            contentType = unbox("file"),
-            name = unbox("main.R")
+          qbit_out <- create_qbit_metadata(
+            qbitModuleId,
+            qbitContentId,
+            qbitTitle,
+            sectionId,
+            code,
+            pkgLock,
+            setup_env,
+            objExercise$packagesLoaded,
+            objExercise$qbitRuntime,
+            objExercise$advertiseQBit
           )
-          qbit_out[[length(qbit_out) + 1]]  <- qbitCodeOut
-
-          qbitPackagesOut <- list(
-            contentId = unbox(paste0(qbitContentId, "#packages")),
-            moduleId = unbox(qbitModuleId),
-            contentType = unbox("content"),
-            packageLock = pkgLock,
-            packagesLoaded = objExercise$packagesLoaded
-          )
-          qbit_out[[length(qbit_out) + 1]]  <- qbitPackagesOut
-
-          if (!is.null(objExercise$advertiseQBit)) {
-            qbitAdvertiseOut <- list(
-              contentId = unbox(sprintf("advertise_%s", qbitContentId)),
-              moduleId = unbox(qbitModuleId),
-              contentType = unbox("main"),
-              createdBy = unbox("SYSTEM"),
-              lastModified = unbox(tstamp)
-            )
-            qbit_out[[length(qbit_out) + 1]]  <- qbitAdvertiseOut
-          }
 
         } else if (!is.null(objQuizOut)) {
           qid <- qid + 1
