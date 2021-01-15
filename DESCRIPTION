@@ -31,5 +31,5 @@ Imports:
   qbit
 RoxygenNote: 7.1.1
 Remotes: 
-  rstudio/rmarkdown@220cb43
+  rstudio/rmarkdown@220cb43,
   quantargo/qbit
