@@ -58,8 +58,8 @@ html_document_base <-
       if (rmarkdown:::pandoc2.0() && is.null(metadata$title) && is.null(metadata$pagetitle))
         args <- c(args, "--metadata", paste0("pagetitle=",
                                              input_file))
-      args <- c(args, rmarkdown:::pandoc_lua_filters(c("pagebreak.lua",
-                                                       "latex-div.lua")))
+      # args <- c(args, rmarkdown:::pandoc_lua_filters(c("pagebreak.lua",
+      #                                                  "latex-div.lua")))
       args
     }
     intermediates_generator <- function(original_input, encoding,
