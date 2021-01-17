@@ -181,16 +181,30 @@ html_document_base <-
             eval(parse(text = objExercise$setup), envir = setup_env)
           }
 
+          qbit_main_item <- list(
+            contentId = unbox(qbitContentId),
+            contentType = unbox("main"),
+            createdBy = unbox("SYSTEM"),
+            description = unbox(sectionId),
+            moduleId = unbox(qbitModuleId),
+            moduleType = unbox("qbit"),
+            title = unbox(qbitTitle),
+            visibility = unbox("public"),
+            qbitName = unbox(qbitModuleId),
+            qbitRuntime = unbox(objExercise$qbitRuntime)
+          )
+
+          file_main <- file.path("..", gsub("#", "/", qbitContentId, fixed = TRUE), "main.R")
+          dir.create(dirname(file_main), recursive = TRUE, showWarnings = FALSE)
+          writeLines(code, file_main)
+          files <- c(file_main)
+
           qbit_out <- create_qbit_metadata(
-            qbitModuleId,
-            qbitContentId,
-            qbitTitle,
-            sectionId,
-            code,
+            qbit_main_item,
+            files,
             pkgLock,
             setup_env,
             objExercise$packagesLoaded,
-            objExercise$qbitRuntime,
             objExercise$advertiseQBit
           )
 
