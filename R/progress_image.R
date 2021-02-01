@@ -46,12 +46,12 @@ progress_image <- function(title,
 
   for (ti in title) {
     offset_ti <- sprintf("+345+%d", offset_ti_y)
-    img <- image_annotate(img, ti,
-                   color = "white",
-                   font = "Inter Bold",
-                   size = font_size,
-                   weight = 700,
-                   location = offset_ti)
+    #img <- image_annotate(img, ti,
+    #               color = "white",
+    #               font = "Inter Bold",
+    #               size = font_size,
+    #               weight = 700,
+    #               location = offset_ti)
     offset_ti_y <- offset_ti_y + font_size + line_gap
   }
 
