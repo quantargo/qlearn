@@ -154,6 +154,7 @@ html_document_base <-
       pkgLock <- jsonlite::read_json("../renv.lock")
       pkgLock$Packages <- lapply(pkgLock$Packages, function(x) lapply(x, function(y) unbox(y)))
 
+      mainItem <- yaml::read_yaml("../index.yml")
       # Extract exercises from content and replace with placeholders
       for (s in sections) {
         sectionContents <- list()
@@ -181,6 +182,14 @@ html_document_base <-
             eval(parse(text = objExercise$setup), envir = setup_env)
           }
 
+          usagePlan = if(!is.null(metadata$usagePlan)) {
+            metadata$usagePlan
+          } else if (!is.null(mainItem$usagePlan)) {
+            mainItem$usagePlan
+          } else {
+            "pro"
+          }
+
           qbit_main_item <- list(
             contentId = unbox(qbitContentId),
             contentType = unbox("main"),
@@ -191,7 +200,8 @@ html_document_base <-
             title = unbox(qbitTitle),
             visibility = unbox("public"),
             qbitName = unbox(qbitModuleId),
-            qbitRuntime = unbox(objExercise$qbitRuntime)
+            qbitRuntime = unbox(objExercise$qbitRuntime),
+            usagePlan = unbox(usagePlan)
           )
 
           file_main <- file.path("..", gsub("#", "/", qbitContentId, fixed = TRUE), "main.R")
