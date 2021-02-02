@@ -183,9 +183,9 @@ html_document_base <-
           }
 
           usagePlan = if(!is.null(metadata$usagePlan)) {
-            metadata$usagePlan
+            if(metadata$usagePlan == "free") "public" else "pro"
           } else if (!is.null(mainItem$usagePlan)) {
-            mainItem$usagePlan
+            if(mainItem$usagePlan == "free") "public" else "pro"
           } else {
             "pro"
           }
