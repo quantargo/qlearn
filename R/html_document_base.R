@@ -209,14 +209,14 @@ html_document_base <-
           writeLines(code, file_main)
           files <- c(file_main)
 
-          qbit_out <- create_qbit_metadata(
+          qbit_out <- c(qbit_out, create_qbit_metadata(
             qbit_main_item,
             files,
             pkgLock,
             setup_env,
             objExercise$packagesLoaded,
             objExercise$advertiseQBit
-          )
+          ))
 
         } else if (!is.null(objQuizOut)) {
           qid <- qid + 1
