@@ -305,17 +305,11 @@ html_document_base <-
         chapterId <- tail(strsplit(objIndex$contentId, "#")[[1]], 1)
         idx_doing <- as.integer(strsplit(chapterId, '-')[[1]][1])
         file_out <- sprintf("%s.png", chapterId)
-
-        sub("#", "/", metadata$tutorial$id, fixed = TRUE)
-
-        img_path <- gsub('#', '/', objIndex$contentId, fixed = TRUE)
-        progress_image_url <- file.path(options("ASSETS_URL"), paste0(img_path, ".png"))
-
-        progress_image(objIndex$title,
-                       idx_doing = idx_doing,
-                       idx_total = length(files_rmd_all),
-                       file_out = sprintf("%s.png", chapterId))
-        objIndex$ogImage <- progress_image_url
+        if (file.exists(file_out)) {
+          img_path <- paste0(gsub('#', '/', objIndex$contentId, fixed = TRUE), ".png")
+          progress_image_url <- file.path(options("ASSETS_URL"), img_path)
+          objIndex$ogImage <- progress_image_url
+        }
       }
 
       json_out[[length(json_out) + 1]]  <- objIndex

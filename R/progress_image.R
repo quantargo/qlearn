@@ -46,12 +46,12 @@ progress_image <- function(title,
 
   for (ti in title) {
     offset_ti <- sprintf("+345+%d", offset_ti_y)
-    #img <- image_annotate(img, ti,
-    #               color = "white",
-    #               font = "Inter Bold",
-    #               size = font_size,
-    #               weight = 700,
-    #               location = offset_ti)
+    img <- image_annotate(img, ti,
+                  color = "white",
+                  font = "Inter Bold",
+                  size = font_size,
+                  weight = 700,
+                  location = offset_ti)
     offset_ti_y <- offset_ti_y + font_size + line_gap
   }
 
@@ -74,8 +74,27 @@ progress_image <- function(title,
     }
     offset_x <- offset_x + gap_x
   }
-  img
   #img # interactive print to plot window
   image_write(img, path = file_out, format = "png")
+  file_out
 }
 
+#' Export Chapter file as image
+#' @export
+chapter_progress_image <- function(fname) {
+  chapterId <- tail(strsplit(fname, "/")[[1]], 1)
+  idx_doing <- as.integer(strsplit(chapterId, '-')[[1]][1])
+  file_out <- sprintf("%s.png", chapterId)
+  img_path <- sprintf("%s.png", tools::file_path_sans_ext(fname))
+  files_rmd_all = list.files(dirname(fname), pattern = "*.Rmd")
+  chapter_title <- rmarkdown::yaml_front_matter(fname)$title
+  file_badge <- file.path(dirname(fname), "badge.svg")
+
+  progress_image(chapter_title,
+                  idx_doing = idx_doing,
+                  idx_total = length(files_rmd_all),
+                  file_out = img_path,
+                  file_badge = file_badge)
+
+  img_path
+}
