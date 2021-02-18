@@ -179,7 +179,13 @@ html_document_base <-
           setup_env <- NULL
           if (!is.null(objExercise$setup)) {
             setup_env <- new.env()
-            eval(parse(text = objExercise$setup), envir = setup_env)
+            setup_parse <- parse(text = objExercise$setup)
+            for (i in 1:length(setup_parse)) {
+              if (setup_parse[[i]][1] == "data()") { # if data function has been called
+                setup_parse[[i]][["envir"]] <- quote(setup_env)
+              }
+            }
+            eval(setup_parse, envir = setup_env)
           }
 
           usagePlan = if(!is.null(metadata$usagePlan)) {
