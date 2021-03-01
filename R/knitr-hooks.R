@@ -130,6 +130,10 @@ install_knitr_hooks <- function() {
         if ("useImage" %in% names(options)){
           useImage <- options$useImage
         }
+        filesLoad <- NULL
+        if ("filesLoad" %in% names(options)){
+          filesLoad <- options$filesLoad
+        }
 
         exObj <- list(
           contentId = options$label,
@@ -166,6 +170,9 @@ install_knitr_hooks <- function() {
         }
         if(!is.null(options$useImage)) {
           exObj$useImage <- useImage
+        }
+        if(!is.null(options$filesLoad)) {
+          exObj$filesLoad <- filesLoad
         }
 
         #attributes(exObj$hints) <- NULL

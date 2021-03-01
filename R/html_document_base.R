@@ -213,7 +213,10 @@ html_document_base <-
           file_main <- file.path("..", gsub("#", "/", qbitContentId, fixed = TRUE), "main.R")
           dir.create(dirname(file_main), recursive = TRUE, showWarnings = FALSE)
           writeLines(code, file_main)
-          files <- c(file_main)
+
+          file_paths_target <- file.path("..", gsub("#", "/", qbitContentId, fixed = TRUE), objExercise$filesLoad)
+          file.copy(objExercise$filesLoad, file_paths_target)
+          files <- c(file_main, file_paths_target)
 
           qbit_out <- c(qbit_out, create_qbit_metadata(
             qbit_main_item,
