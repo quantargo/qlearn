@@ -3,10 +3,6 @@
 #' @importFrom magick image_read image_annotate image_composite image_write image_read_svg image_scale image_info
 #' @importFrom  magrittr "%>%"
 #' @importFrom stringr str_locate_all str_trim str_sub
-#' @examples
-#' course_image("R is everywhere", "out.png")
-#' course_image("Use existing functions and data through packages", "out.png")
-#' course_image("Extract or replace columns in a data frame using `$`", "out.png")
 #' @export
 course_image <- function(title,
                            file_out,

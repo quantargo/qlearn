@@ -15,8 +15,3 @@ course_image(
 \description{
 Create Progress image for chapter
 }
-\examples{
-course_image("R is everywhere", "out.png")
-course_image("Use existing functions and data through packages", "out.png")
-course_image("Extract or replace columns in a data frame using `$`", "out.png")
-}

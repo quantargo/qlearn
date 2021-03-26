@@ -4,9 +4,11 @@
 #' @importFrom  magrittr "%>%"
 #' @importFrom stringr str_locate_all str_trim str_sub
 #' @examples
+#' \dontrun{
 #' progress_image("R is everywhere", 1, 6, "out.png")
 #' progress_image("Use existing functions and data through packages", 5, 6, "out.png")
 #' progress_image("Extract or replace columns in a data frame using `$`", 5, 6, "out.png")
+#' }
 #' @export
 progress_image <- function(title,
                            idx_doing,

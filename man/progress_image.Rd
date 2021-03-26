@@ -17,7 +17,9 @@ progress_image(
 Create Progress image for chapter
 }
 \examples{
+\dontrun{
 progress_image("R is everywhere", 1, 6, "out.png")
 progress_image("Use existing functions and data through packages", 5, 6, "out.png")
 progress_image("Extract or replace columns in a data frame using `$`", 5, 6, "out.png")
+}
 }

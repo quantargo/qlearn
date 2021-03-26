@@ -2,6 +2,7 @@
 #' @import jsonlite
 #' @importFrom magrittr "%>%"
 #' @importFrom qbit create_qbit_metadata
+#' @importFrom yaml read_yaml
 html_document_base <-
   function (smart = TRUE, theme = NULL, self_contained = FALSE,
             lib_dir = NULL, mathjax = "default", pandoc_args = NULL,

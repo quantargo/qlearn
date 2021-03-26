@@ -28,7 +28,8 @@ Imports:
   htmlwidgets,
   markdown,
   rsvg,
-  qbit
+  qbit,
+  yaml
 RoxygenNote: 7.1.1
 Remotes: 
   quantargo/qbit
