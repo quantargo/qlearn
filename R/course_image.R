@@ -14,7 +14,7 @@ course_image <- function(title,
                            file_badge = "badge.svg",
                            file_course = "main/course.svg") {
 
-  img_bg = image_read(system.file("Recipe_1_background.png", package = "qlearn", mustWork = TRUE))
+  img_bg = image_read(system.file("og-image-background-logo.png", package = "qlearn", mustWork = TRUE))
   img_bg_height <- image_info(img_bg)[1, c("height"), drop=TRUE]
   img_bg_width <- image_info(img_bg)[1, c("width"), drop=TRUE]
   img_course = image_read_svg(file_course)
