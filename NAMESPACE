@@ -2,6 +2,8 @@
 
 export(answer)
 export(chapter_progress_image)
+export(course_image)
+export(course_main_image)
 export(progress_image)
 export(qlearn)
 export(question)
