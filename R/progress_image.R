@@ -19,7 +19,7 @@ progress_image <- function(title,
 
   img_badge <- image_read_svg(file_badge)
 
-  img_bg = image_read(system.file("og-image-background-logo.png", package = "qlearn", mustWork = TRUE))
+  img_bg = image_read(system.file("og-image-background-empty.png", package = "qlearn", mustWork = TRUE))
   img_bg_height <- image_info(img_bg)[1, c("height"), drop=TRUE]
   img_progress_doing <- image_read(system.file("Recipe-progress-indicator-doing.png", package = "qlearn", mustWork = TRUE))
   img_progress_doing_height <- image_info(img_progress_doing)[1, c("height"), drop=TRUE]
