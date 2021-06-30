@@ -1,7 +1,6 @@
 #' @import xml2
 #' @import jsonlite
 #' @importFrom magrittr "%>%"
-#' @importFrom qbit create_qbit_metadata
 #' @importFrom yaml read_yaml
 html_document_base <-
   function (smart = TRUE, theme = NULL, self_contained = FALSE,
