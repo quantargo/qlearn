@@ -152,7 +152,13 @@ html_document_base <-
       json_out <- list()
       qbit_out <- list()
       pkgLock <- jsonlite::read_json("../renv.lock")
-      pkgLock$Packages <- lapply(pkgLock$Packages, function(x) lapply(x, function(y) unbox(y)))
+      pkgLock$Packages <- lapply(pkgLock$Packages, function(x) lapply(x, function(y) {
+        if (length(y) == 1 && class(y) != "list") {
+          unbox(y)
+        } else {
+          y
+        }
+      }))
 
       mainItem <- yaml::read_yaml("../index.yml")
       # Extract exercises from content and replace with placeholders
