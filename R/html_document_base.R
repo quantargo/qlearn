@@ -52,8 +52,8 @@ html_document_base <-
                                                      dependency_resolver, format_deps)
       args <- c(args, rmarkdown:::pandoc_html_extras_args(extras, self_contained,
                                                           lib_dir, output_dir))
-      args <- c(args, rmarkdown:::pandoc_mathjax_args(mathjax, template,
-                                                      self_contained, lib_dir, output_dir))
+      #args <- c(args, rmarkdown:::pandoc_mathjax_args(mathjax, template,
+      #                                                self_contained, lib_dir, output_dir))
       preserved_chunks <<- rmarkdown:::extract_preserve_chunks(input_file)
       if (rmarkdown:::pandoc2.0() && is.null(metadata$title) && is.null(metadata$pagetitle))
         args <- c(args, "--metadata", paste0("pagetitle=",
